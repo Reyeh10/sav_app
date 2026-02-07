@@ -1,0 +1,507 @@
+/* ✅ Fix double Select2 */
+select.select2-hidden-accessible {
+    display: none !important;
+}
+
+/* ✅ Full width */
+.select2-container {
+    width: 100% !important;
+}
+
+/* ✅ Default Select2 style */
+.select2-container--default .select2-selection--single {
+    height: 38px !important;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 5px 10px;
+}
+
+/* ✅ Orange focus */
+.select2-container--focus .select2-selection--single,
+.select2-container--open .select2-selection--single {
+    border-color: orange !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.25) !important;
+}
+/* ✅ Orange button */
+.btn-orange {
+    background-color: orange !important;
+    border-color: orange !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+/* ✅ Hover effect */
+.btn-orange:hover {
+    background-color: #ff7a00 !important;
+    border-color: #ff7a00 !important;
+    color: white !important;
+}
+.btn-outline-green {
+    border: 1px solid green;
+    color: green;
+    background: transparent;
+}
+
+.btn-outline-green:hover {
+    background: green;
+    color: white;
+}
+/* ✅ Login Logo Styling */
+.login-logo-wrapper {
+    width: 110px;
+    height: 110px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.login-logo {
+    width: 80%;
+    height: auto;
+    object-fit: contain;
+}
+.btn-orange {
+    background: orange !important;
+    border-color: orange !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+.btn-orange:hover {
+    background: #ff7a00 !important;
+    border-color: #ff7a00 !important;
+}
+
+.btn-orange {
+    background: orange !important;
+    border-color: orange !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+.btn-orange:hover {
+    background: #ff7a00 !important;
+    border-color: #ff7a00 !important;
+}
+.sidebar-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #8c98a4;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin-top: 22px;
+    margin-bottom: 10px;
+    padding-left: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sidebar-section-title i {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.sidebar-section-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.05);
+    margin-bottom: 15px;
+}
+.vehicle-thumb{
+    width:60px;
+    height:60px;
+    object-fit:cover;
+    border-radius:8px;
+}
+/* ===== HEADER BASE ===== */
+.header-premium{
+    background:#ffffff;
+    border-bottom:1px solid #eef2f7;
+    padding:10px 18px;            /* 🔥 réduit */
+    min-height:60px;              /* 🔥 hauteur fixe propre */
+    display:flex;
+    align-items:center;
+}
+
+/* ===== LEFT BLOCK ===== */
+.header-left-block{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+/* ===== TITLE ===== */
+.header-main-title{
+    font-weight:600;
+    color:#1f2937;
+    font-size:18px;               /* 🔥 réduit */
+    line-height:1.2;
+}
+
+.header-sub-title{
+    color:#9ca3af;
+    font-size:12px;
+    line-height:1.1;
+}
+
+/* ===== USER BOX ===== */
+.header-user-box{
+    background:#f9fafb;
+    padding:6px 10px;             /* 🔥 réduit */
+    border-radius:10px;
+    border:1px solid #f1f5f9;
+    height:44px;                  /* 🔥 fixe pour éviter overflow */
+    display:flex;
+    align-items:center;
+}
+
+/* ===== ROLE BADGE ===== */
+.header-role{
+    background:#fff3ed;
+    color:#ff6b35;
+    padding:3px 8px;              /* 🔥 réduit */
+    border-radius:6px;
+    font-size:12px;
+    font-weight:600;
+    margin-right:8px;
+}
+
+/* ===== AVATAR ===== */
+.header-avatar{
+    width:30px;                   /* 🔥 réduit */
+    height:30px;
+    border-radius:50%;
+    margin-right:8px;
+}
+
+/* ===== USER TEXT ===== */
+.header-user-text{
+    line-height:1.1;
+}
+
+.header-username{
+    font-weight:600;
+    font-size:13px;
+    color:#111827;
+}
+
+.header-user-status{
+    font-size:11px;
+    color:#9ca3af;
+}
+
+/* ===== DROPDOWN ===== */
+.header-dropdown-arrow{
+    font-size:12px;
+    color:#9ca3af;
+    text-decoration:none;
+    margin-left:6px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:768px){
+
+    .header-sub-title{
+        display:none;
+    }
+
+    .header-role{
+        display:none;
+    }
+
+}
+/* ===== HEADER BASE ===== */
+.header-premium{
+    background: linear-gradient(135deg,#7ec8ff,#9fd8ff);   /* 🔥 Bleu clair doux */
+    border-bottom:1px solid #dbeafe;
+    padding:10px 18px;
+    min-height:60px;
+    display:flex;
+    align-items:center;
+}
+
+/* ===== TITLES ===== */
+.header-main-title{
+    font-weight:600;
+    color:#ffffff;
+    font-size:18px;
+}
+
+.header-sub-title{
+    color:#f0f9ff;
+    font-size:12px;
+}
+
+/* ===== USER BOX ===== */
+.header-user-box{
+    background:rgba(255,255,255,0.25);
+    padding:6px 12px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.35);
+}
+
+/* ===== ROLE BADGE ===== */
+.header-role{
+    /* background:rgba(255,255,255,0.35); */
+    background: linear-gradient(135deg,#b9e6ff,#d7f0ff);
+
+    color:#1e3a8a;
+    padding:3px 8px;
+    border-radius:6px;
+    font-size:12px;
+    font-weight:600;
+    margin-right:8px;
+}
+
+/* ===== AVATAR ===== */
+.header-avatar{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    margin-right:8px;
+    border:2px solid rgba(255,255,255,0.7);
+}
+
+/* ===== USER TEXT ===== */
+.header-username{
+    font-weight:600;
+    font-size:13px;
+    color:#ffffff;
+}
+
+.header-user-status{
+    font-size:11px;
+    color:#eef7ff;
+}
+
+/* ===== DROPDOWN ===== */
+.header-dropdown-arrow{
+    font-size:12px;
+    color:#ffffff;
+    margin-left:6px;
+}
+
+/* ===== SIDEBAR LOGO BLOCK ===== */
+
+.sidebar-logo{
+    border-bottom:1px solid #f1f5f9;
+}
+
+/* TITRE SOCIETE */
+.logo-title{
+    font-size:16px;
+    color:#1e293b !important;
+    line-height:1.2;
+}
+
+/* SOUS TITRE */
+.logo-sub{
+    font-size:12px;
+    color:#64748b !important;
+}
+/* ===== TITRE SOCIETE VIOLET ===== */
+.logo-title{
+    font-size:16px;
+    color:#6d28d9 !important;   /* ✅ Violet Pro */
+    line-height:1.2;
+}
+
+/* ===== SOUS TITRE ===== */
+.logo-sub{
+    font-size:12px;
+    color:#64748b !important;
+}
+/* ==================  header color ========================== */
+/* ===== HEADER ORANGE SOFT ===== */
+.header-premium{
+    background:#f97316;   /* ✅ Orange soft */
+    border-bottom:0;
+    padding:14px 25px;
+}
+
+/* ===== TITRES ===== */
+.header-main-title{
+    font-weight:700;
+    color:#ffffff;
+    font-size:20px;
+}
+
+.header-sub-title{
+    color:#ffe8dc;
+    font-size:13px;
+}
+.header-user-box{
+    background:rgba(255,255,255,0.18);
+    padding:8px 14px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.25);
+}
+
+/* ROLE BADGE */
+.header-role{
+    background:rgba(255,255,255,0.25);
+    color:#ffffff;
+    padding:5px 12px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    margin-right:12px;
+}
+
+.header-username{
+    font-weight:600;
+    font-size:14px;
+    color:#ffffff;
+}
+
+.header-user-status{
+    font-size:12px;
+    color:#ffe8dc;
+}
+/* ========================= Dashboard vendeur ============= */
+.stat-soft{
+    border-radius:14px;
+    padding:5px;
+    transition:all .25s ease;
+}
+.stat-soft:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 30px rgba(0,0,0,0.08);
+}
+
+/* soft backgrounds */
+.stat-yellow{ background:#efe3c2; }
+.stat-green{ background:#cfe2db; }
+.stat-blue{ background:#d7e9ff; }
+.stat-gray{ background:#e6e6e6; }
+.stat-purple{ background:#e6dcf7; }
+.stat-orange{ background:#fde3d0; }
+
+/* icon circle */
+.stat-icon{
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+}
+
+/* colors helpers */
+.bg-purple{ background:#6f42c1 !important; }
+.text-purple{ color:#6f42c1 !important; }
+
+.bg-orange{ background:#f97316 !important; }
+.text-orange{ color:#f97316 !important; }
+
+.stat-title{ font-weight:600; font-size:15px; }
+.stat-number{ font-size:32px; font-weight:700; color:#111827; }
+.stat-sub{ font-size:13px; color:#6b7280; }
+/* ================= LOGIN BACKGROUND ================= */
+
+.login-wrapper{
+    min-height:100vh;
+    background:#f3f6fb;
+    position:relative;
+    overflow:hidden;
+}
+
+/* LOGO WATERMARK GRAND + VISIBLE */
+.login-wrapper::before{
+    content:"";
+    position:absolute;
+    top:50%;
+    left:50%;
+
+    width:1000px;        /* ✅ PLUS GRAND */
+    height:1000px;
+
+    transform:translate(-50%, -50%);
+
+    background:url("/images/STCD.jpg") no-repeat center;
+    background-size:contain;
+
+    opacity:0.12;       /* ✅ PLUS VISIBLE */
+
+    filter:
+        saturate(1.4)   /* ✅ BOOST COULEUR */
+        contrast(1.2);  /* ✅ BOOST VISIBILITÉ */
+
+    pointer-events:none;
+}
+
+/* ===== LOGIN WRAPPER ===== */
+.login-wrapper{
+    min-height:100vh;
+    background:#f3f6fb;
+}
+
+/* ===== LOGIN CARD ===== */
+.login-card{
+    border-radius:18px;
+    backdrop-filter:blur(10px);
+}
+
+/* ===== INPUT STYLE ===== */
+.login-input{
+    border-radius:10px;
+    padding:10px 14px;
+}
+
+/* ===== PASSWORD ICON ===== */
+.password-toggle{
+    position:absolute;
+    right:15px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+    color:#9ca3af;
+}
+
+/* ===== ORANGE TITLE ===== */
+.text-orange{
+    color:#ff7a00;
+}
+
+/* ===== GREEN LOGIN BUTTON ===== */
+.btn-login-green{
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    border:none;
+    color:white;
+    padding:12px;
+    border-radius:12px;
+    font-weight:600;
+    transition:all .3s ease;
+}
+
+.btn-login-green:hover{
+    transform:translateY(-1px);
+    box-shadow:0 8px 20px rgba(34,197,94,.25);
+}
+
+/* ===== FORGOT PASSWORD ===== */
+.forgot-link{
+    color:#ef4444;
+    font-size:14px;
+    text-decoration:none;
+}
+
+.forgot-link:hover{
+    color:#dc2626;
+}
+
+/* ===== REGISTER LINK ===== */
+.register-link{
+    color:#ff7a00;
+    text-decoration:none;
+}
+
+.register-link:hover{
+    color:#ea580c;
+}
