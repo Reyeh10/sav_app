@@ -27,18 +27,33 @@
         </div>
     </div>
 </div>
-
+        {{-- VOITURES NON VENDUES --}}
 <div class="col-xl-3 col-md-6">
     <div class="card bg-green-img border-0 shadow-sm">
         <div class="card-body d-flex justify-content-between align-items-center">
             <div>
-                <p class="mb-1 text-muted">Véhicules Actifs</p>
-                <h2 class="fw-bold">{{ $activeVehicles }}</h2>
+                <p class="mb-1 text-muted">Voitures Non Vendues/p>
+                <h2 class="fw-bold">{{ $notSoldVehicles }}</h2>
             </div>
             <i class="ti ti-check fs-1 opacity-75"></i>
         </div>
     </div>
 </div>
+{{-- VOITURES NON VENDUES --}}
+            <!--div class="col-xl-4 col-md-6">
+                <div class="card stat-soft stat-gray border-0">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stat-title text-dark mb-1">Voitures Non Vendues</h6>
+                            <h2 class="stat-number mb-1">{ { $notSoldVehicles }}</h2>
+                            <p class="stat-sub">Encore disponibles / en traitement</p>
+                        </div>
+                        <div class="stat-icon bg-dark">
+                            <i class="ti ti-clock text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div-->
 
 <div class="col-xl-3 col-md-6">
     <div class="card bg-purple-img border-0 shadow-sm">

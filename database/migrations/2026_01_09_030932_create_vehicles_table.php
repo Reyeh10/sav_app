@@ -15,7 +15,7 @@ return new class extends Migration
         $table->id();
         $table->string('vin')->unique();
         $table->string('plate_number')->nullable();
-        $table->string('brand');
+        $table->string('brand')->nullable();;
         $table->string('model');
         $table->string('color_exterior')->nullable();
         $table->string('color_interior')->nullable();

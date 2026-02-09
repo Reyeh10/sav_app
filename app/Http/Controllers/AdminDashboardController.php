@@ -44,6 +44,8 @@ class AdminDashboardController extends Controller
             ->groupBy('month')
             ->orderBy('month')
             ->get();
+        // ⭐ IMPORTANT — VOITURES NON VENDUES
+        $notSoldVehicles = Vehicle::where('status', '!=', 'sold')->count();
 
         return view('dashboard.admindashboard', compact(
             'totalVehicles',
@@ -53,6 +55,7 @@ class AdminDashboardController extends Controller
             'soldVehicles',
             'approvedVehicles',
             'rejectedVehicles',
+            'notSoldVehicles',   // ⭐ OBLIGATOIRE
             'vehiclesByBrand',
             'soldByMonth'
         ));
