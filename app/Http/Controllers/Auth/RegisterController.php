@@ -12,6 +12,12 @@ class RegisterController extends Controller
 {
     use RegistersUsers;
 
+    public function __construct()
+    {
+        abort(403, 'Inscription désactivée.');
+    }
+
+
     public function showRegistrationForm()
     {
         return view('auth.smarthr.register');

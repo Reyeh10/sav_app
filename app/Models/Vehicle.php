@@ -7,47 +7,29 @@ use Illuminate\Database\Eloquent\Model;
 
 class Vehicle extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-    'vin',
-    'plate_number',
-    'brand',
-    'model',
-    'image',
-    'color_exterior',
-    'color_interior',
-    'year',
-    'arrival_date',
-    'mileage',
-    'status'
+        'vin',
+        'plate_number',
+        'brand',
+        'model',
+        'image',
+        'color_exterior',
+        'color_interior',
+        'year',
+        'arrival_date',
+        'mileage',
+        'status',
+        'comment',
+        'sold_price'
+    ];
 
-];
-
-    /* Relations */
-    public function inspections()
-    {
-        return $this->hasMany(Inspection::class);
-    }
-
-    /* public function warranty()
-    {
-        return $this->hasOne(Warranty::class);
-    }
-
-    public function maintenanceRecords()
-    {
-        return $this->hasMany(MaintenanceRecord::class);
-    }
-
-    public function maintenanceReminders()
-    {
-        return $this->hasMany(MaintenanceReminder::class);
-    }
-
-    public function savCases()
-    {
-        return $this->hasMany(SavCase::class);
-    }*/
-
+    /*
+    ===============================
+       RELATION SALE
+    ===============================
+    */
     public function sale()
     {
         return $this->hasOne(Sale::class);

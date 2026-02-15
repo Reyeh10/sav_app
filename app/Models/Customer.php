@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Sale;
 
 class Customer extends Model
 {
@@ -19,13 +20,4 @@ class Customer extends Model
         return $this->hasMany(Sale::class);
     }
 
-    /* public function savCases()
-    {
-        return $this->hasMany(SavCase::class);
-    }
-
-   public function maintenanceReminders()
-    {
-        return $this->hasMany(MaintenanceReminder::class);
-    }*/
 }

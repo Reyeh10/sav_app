@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Vehicle;
+use App\Models\Customer;
+use App\Models\User;
 
 class Sale extends Model
 {
@@ -16,7 +19,8 @@ class Sale extends Model
     ];
 
     protected $casts = [
-        'sale_date' => 'date'
+        'sold_date' => 'datetime',
+        'sold_price' => 'float'
     ];
 
     public function vehicle()

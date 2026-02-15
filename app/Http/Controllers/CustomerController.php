@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
-
+use App\Http\Controllers\Controller;
 use App\Imports\CustomersImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CustomersExport;
@@ -53,10 +53,16 @@ class CustomerController extends Controller
     /* ===============================
        ✅ EDIT
     =============================== */
-    public function edit(Customer $customer)
+    /* public function edit(Customer $customer)
     {
         return view('customers.edit', compact('customer'));
-    }
+    } */
+    public function edit($id)
+{
+    $customer = Customer::findOrFail($id);
+
+    return view('customers.edit', compact('customer'));
+}
 
 
     /* ===============================
@@ -71,6 +77,12 @@ class CustomerController extends Controller
             'address' => 'nullable|string|max:255',
         ]);
 
+        $customer->update([
+        'name' => $request->name,
+        'phone' => $request->phone,
+        'email' => $request->email,
+        'address' => $request->address
+    ]);
         $customer->update($data);
 
         return redirect()->route('customers.index')
@@ -104,7 +116,25 @@ class CustomerController extends Controller
         return redirect()->route('customers.index')
             ->with('success', "Import clients terminé ✅");
     }
+       /* ===============================
+       ✅ Create new customer
+    =============================== */
+        public function quickStore(Request $request)
+            {
+                $request->validate([
+                    'name' => 'required|string|max:255',
+                    'phone' => 'nullable|string|max:50',
+                    'email' => 'nullable|email'
+                ]);
 
+                $customer = Customer::create([
+                    'name' => $request->name,
+                    'phone' => $request->phone,
+                    'email' => $request->email,
+                ]);
+
+                return response()->json($customer);
+            }
 
     /* ===============================
        ✅ EXPORT EXCEL (admin + vendeur)

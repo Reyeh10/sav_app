@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
 use App\Models\Inspection;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;

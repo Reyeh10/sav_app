@@ -209,9 +209,24 @@
 
                         @endif
                             <!-- ================================================= -->
-                        <!-- 👥 Admin Dashboard -->
+                        <!-- 👥 Gestion des utilisateurs -->
                         <!-- ================================================= -->
+                        @if(auth()->user()->role == 'admin')
+                            <li class="submenu">
+                                <a href="#">
+                                    <i class="ti ti-users"></i>
+                                    <span>Gestion utilisateurs</span>
+                                </a>
 
+                                <ul>
+                                    <li>
+                                        <a href="{{ route('users.index') }}">
+                                            Liste des utilisateurs
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
             </ul>
 
         </div>

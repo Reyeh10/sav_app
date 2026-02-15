@@ -20,8 +20,8 @@
         <th>VIN</th>
         <th>Marque</th>
         <th>Modèle</th>
-        <th>Extérieur</th>
-        <th>Intérieur</th>
+        <th>Couleur extérieur</th>
+        <th>Couleur intérieur</th>
         <th>Année</th>
         <th>Date arrivée</th>
         <th>Kilométrage</th>

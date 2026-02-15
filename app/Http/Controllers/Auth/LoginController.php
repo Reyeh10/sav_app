@@ -3,73 +3,94 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    use AuthenticatesUsers;
-
     /*
-    |--------------------------------------------------------------------------
-    | LOGIN FORM SMART HR
-    |--------------------------------------------------------------------------
+    ============================
+    LOGIN FORM
+    ============================
     */
-
     public function showLoginForm()
     {
         return view('auth.smarthr.login');
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | REDIRECTION APRES LOGIN PAR ROLE
-    |--------------------------------------------------------------------------
+    ============================
+    LOGIN LOGIC
+    ============================
     */
+    public function login(Request $request)
+    {
+        // ✅ Validation champs
+        $request->validate([
+            'email' => ['required','email'],
+            'password' => ['required']
+        ]);
 
+        // ✅ Tentative login
+        if (Auth::attempt($request->only('email','password'))) {
+
+            // ✅ Sécurité session
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            // ✅ Force changement password UNIQUEMENT si flag = 1
+            if ((int)$user->must_change_password === 1) {
+                return redirect()->route('force.password.form');
+            }
+
+            // ✅ Redirection normale
+            return redirect()->intended($this->redirectTo());
+        }
+
+        // ❌ LOGIN FAILED
+        return back()
+            ->withErrors([
+                'login_error' => 'Veuillez entrer un mot de passe correct'
+            ])
+            ->withInput($request->only('email'));
+    }
+
+    /*
+    ============================
+    REDIRECT BY ROLE
+    ============================
+    */
     protected function redirectTo()
     {
-        $role = trim(auth()->user()->role);
+        if (!auth()->check()) return '/login';
 
-        return match ($role) {
-            'admin'      => '/vehicles',
-            'mecanicien' => '/vehicles',
+        return match(auth()->user()->role) {
+            'admin' => '/dashboard/admindashboard',
+            'vendeur' => '/dashboard/vendor',
             'logistique' => '/vehicles',
-            'vendeur'    => '/sales/create',
-            default      => '/login',
+            'mecanicien' => '/vehicles',
+            default => '/dashboard'
         };
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | LOGOUT PROPRE LARAVEL (IMPORTANT)
-    |--------------------------------------------------------------------------
+    ============================
+    LOGOUT
+    ============================
     */
-
     public function logout(Request $request)
     {
         Auth::logout();
 
-        // Invalide session
         $request->session()->invalidate();
-
-        // Regénère token CSRF
         $request->session()->regenerateToken();
 
-        // Redirect login
-        return redirect()->route('login');
+        return redirect('/login');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | CONSTRUCTEUR
-    |--------------------------------------------------------------------------
-    */
 
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
-        $this->middleware('auth')->only('logout');
     }
 }

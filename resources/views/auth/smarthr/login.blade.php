@@ -22,6 +22,12 @@
                         Accéder au système SAV — STCD Motors
                     </p>
                 </div>
+                 <!-- ================= Message ================= -->
+                @if($errors->has('login_error'))
+                    <div class="alert alert-danger text-center">
+                        {{ $errors->first('login_error') }}
+                    </div>
+                @endif
 
                 <!-- ================= FORM ================= -->
                 <form method="POST" action="{{ route('login') }}">
@@ -90,15 +96,15 @@
                     </button>
 
                     <!-- REGISTER -->
-                    <div class="text-center">
+                    <!--iv class="text-center">
                         <small class="text-muted">
                             Pas encore de compte ?
-                            <a href="{{ route('register') }}"
+                            <a href="{ { route('register') }}"
                                class="register-link fw-semibold">
                                 Créer un compte
                             </a>
                         </small>
-                    </div>
+                    </div-->
 
                 </form>
 

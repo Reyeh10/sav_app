@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Vehicle;
 use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +48,18 @@ class AdminDashboardController extends Controller
         // ⭐ IMPORTANT — VOITURES NON VENDUES
         $notSoldVehicles = Vehicle::where('status', '!=', 'sold')->count();
 
+        $vehiclesByBrand = Vehicle::select('brand')
+        ->selectRaw('count(*) as total')
+        ->groupBy('brand')
+        ->get();
+
+        $vehiclesByModel = Vehicle::select('brand')
+        ->selectRaw('count(*) as total')
+        ->groupBy('brand')
+        ->get();
+
+
+
         return view('dashboard.admindashboard', compact(
             'totalVehicles',
             'totalClients',
@@ -57,6 +70,7 @@ class AdminDashboardController extends Controller
             'rejectedVehicles',
             'notSoldVehicles',   // ⭐ OBLIGATOIRE
             'vehiclesByBrand',
+            'vehiclesByModel',
             'soldByMonth'
         ));
     }

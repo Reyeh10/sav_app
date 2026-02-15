@@ -22,22 +22,20 @@
             <!-- ===== RIGHT : USER INFO ===== -->
             <div class="header-user-box d-flex align-items-center">
 
-                <!-- ROLE -->
-                <!--span class="header-role">
-                    { { ucfirst(auth()->user()->role ?? 'User') }}
-                </span-->
+                @auth
 
                 <!-- AVATAR -->
                 <img src="{{ asset('admintemplate/assets/img/profiles/avatar-02.jpg') }}"
-                     class="header-avatar">
+                     class="header-avatar"
+                     alt="User Avatar">
 
                 <!-- USER INFO -->
                 <div class="header-user-text">
                     <div class="header-username">
-                        {{ auth()->user()->name ?? 'Utilisateur' }}
+                        {{ auth()->user()->name }}
                     </div>
 
-                    <small class="header-user-status">
+                    <small class="header-user-status text-success">
                         Connecté
                     </small>
                 </div>
@@ -45,7 +43,9 @@
                 <!-- DROPDOWN -->
                 <div class="dropdown ms-2">
 
-                    <a href="#" data-bs-toggle="dropdown" class="header-dropdown-arrow">
+                    <a href="#"
+                       data-bs-toggle="dropdown"
+                       class="header-dropdown-arrow">
                         ▼
                     </a>
 
@@ -72,13 +72,15 @@
 
                 </div>
 
-                <!-- LOGOUT FORM -->
+                <!-- LOGOUT FORM (POST SECURE) -->
                 <form id="logout-form"
                       action="{{ route('logout') }}"
                       method="POST"
                       class="d-none">
                     @csrf
                 </form>
+
+                @endauth
 
             </div>
 
@@ -87,3 +89,12 @@
     </div>
 
 </div>
+
+<!-- ================= ENTERPRISE SECURITY : ANTI BACK CACHE ================= -->
+<script>
+window.addEventListener("pageshow", function (event) {
+    if (event.persisted) {
+        window.location.reload();
+    }
+});
+</script>

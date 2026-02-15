@@ -26,9 +26,9 @@
 </div>
 
 <!-- CARD -->
-<div class="card">
+<div class="card shadow-sm">
 <div class="card-header">
-    <h5 class="card-title">Informations du véhicule</h5>
+    <h5 class="card-title mb-0">Informations du véhicule</h5>
 </div>
 
 <div class="card-body">
@@ -39,10 +39,10 @@
 @csrf
 @method('PUT')
 
-<div class="row">
+<div class="row g-3">
 
 <!-- VIN -->
-<div class="col-md-6 mb-3">
+<div class="col-md-6">
     <label class="form-label">VIN *</label>
     <input type="text"
            name="vin"
@@ -52,7 +52,7 @@
 </div>
 
 <!-- Plate -->
-<div class="col-md-6 mb-3">
+<div class="col-md-6">
     <label class="form-label">Immatriculation</label>
     <input type="text"
            name="plate_number"
@@ -61,7 +61,7 @@
 </div>
 
 <!-- Brand -->
-<div class="col-md-6 mb-3">
+<div class="col-md-6">
     <label class="form-label">Marque *</label>
     <input type="text"
            name="brand"
@@ -71,7 +71,7 @@
 </div>
 
 <!-- Model -->
-<div class="col-md-6 mb-3">
+<div class="col-md-6">
     <label class="form-label">Modèle *</label>
     <input type="text"
            name="model"
@@ -81,7 +81,7 @@
 </div>
 
 <!-- Color Exterior -->
-<div class="col-md-6 mb-3">
+<div class="col-md-6">
     <label class="form-label">Couleur extérieure</label>
     <input type="text"
            name="color_exterior"
@@ -90,7 +90,7 @@
 </div>
 
 <!-- Color Interior -->
-<div class="col-md-6 mb-3">
+<div class="col-md-6">
     <label class="form-label">Couleur intérieure</label>
     <input type="text"
            name="color_interior"
@@ -99,9 +99,8 @@
 </div>
 
 <!-- Arrival Date -->
-<div class="col-md-6 mb-3">
+<div class="col-md-6">
     <label class="form-label">Date arrivée</label>
-
     <input type="date"
            name="arrival_date"
            class="form-control"
@@ -112,9 +111,8 @@
            ) }}">
 </div>
 
-
 <!-- Year -->
-<div class="col-md-3 mb-3">
+<div class="col-md-3">
     <label class="form-label">Année *</label>
     <input type="number"
            name="year"
@@ -124,7 +122,7 @@
 </div>
 
 <!-- Mileage -->
-<div class="col-md-3 mb-3">
+<div class="col-md-3">
     <label class="form-label">Kilométrage *</label>
     <input type="number"
            name="mileage"
@@ -133,22 +131,37 @@
            required>
 </div>
 
-<!-- STATUS → Admin + Mecanicien seulement -->
+<!-- STATUS (Admin + Mecanicien) -->
 @if(in_array(auth()->user()->role,['admin','mecanicien']))
-<div class="col-md-6 mb-3">
+<div class="col-md-6">
     <label class="form-label">Statut</label>
     <select name="status" class="form-select">
-        <option value="draft" {{ $vehicle->status=='draft'?'selected':'' }}>Draft</option>
-        <option value="inspected" {{ $vehicle->status=='inspected'?'selected':'' }}>Inspected</option>
-        <option value="approved" {{ $vehicle->status=='approved'?'selected':'' }}>Approved</option>
-        <option value="rejected" {{ $vehicle->status=='rejected'?'selected':'' }}>Rejected</option>
+        <option value="draft" {{ $vehicle->status=='draft'?'selected':'' }}>En cours d'inspection</option>
+        <!--option value="inspected" { { $vehicle->status=='inspected'?'selected':'' }}>Inspected</option-->
+        <option value="approved" {{ $vehicle->status=='approved'?'selected':'' }}>Approuvé</option>
+        <option value="rejected" {{ $vehicle->status=='rejected'?'selected':'' }}>Rejeté</option>
         <option value="sold" {{ $vehicle->status=='sold'?'selected':'' }}>Sold</option>
     </select>
 </div>
 @endif
 
+
+<!-- COMMENTAIRE (MECANICIEN SEULEMENT) -->
+@if(auth()->user()->role === 'mecanicien')
+<div class="col-md-12">
+    <label class="form-label fw-bold">
+        Commentaire du mécanicien
+    </label>
+
+    <textarea name="comment"
+              class="form-control"
+              rows="4"
+              placeholder="Ajouter un commentaire technique...">{{ old('comment', $vehicle->comment) }}</textarea>
+</div>
+@endif
+
+
 <!-- IMAGE -->
-{{-- IMAGE --}}
 @if(auth()->user()->role === 'mecanicien')
 
 <div class="col-md-6">
@@ -172,8 +185,8 @@
 @endif
 
 
-<!-- Buttons -->
-<div class="text-end mt-4">
+<!-- BUTTONS -->
+<div class="col-md-12 text-end mt-4">
     <a href="{{ route('vehicles.index') }}" class="btn btn-light">
         Annuler
     </a>
@@ -183,6 +196,7 @@
     </button>
 </div>
 
+</div> {{-- row --}}
 </form>
 
 </div>

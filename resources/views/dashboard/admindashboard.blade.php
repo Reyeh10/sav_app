@@ -13,7 +13,7 @@
     </div>
 </div>
 
-<!-- ================= CARTES PRINCIPALES ================= -->
+<!-- ================= CARTES ================= -->
 <div class="row g-3">
 
 <div class="col-xl-3 col-md-6">
@@ -27,33 +27,18 @@
         </div>
     </div>
 </div>
-        {{-- VOITURES NON VENDUES --}}
+
 <div class="col-xl-3 col-md-6">
     <div class="card bg-green-img border-0 shadow-sm">
         <div class="card-body d-flex justify-content-between align-items-center">
             <div>
-                <p class="mb-1 text-muted">Voitures Non Vendues/p>
+                <p class="mb-1 text-muted">Voitures Non Vendues</p>
                 <h2 class="fw-bold">{{ $notSoldVehicles }}</h2>
             </div>
             <i class="ti ti-check fs-1 opacity-75"></i>
         </div>
     </div>
 </div>
-{{-- VOITURES NON VENDUES --}}
-            <!--div class="col-xl-4 col-md-6">
-                <div class="card stat-soft stat-gray border-0">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="stat-title text-dark mb-1">Voitures Non Vendues</h6>
-                            <h2 class="stat-number mb-1">{ { $notSoldVehicles }}</h2>
-                            <p class="stat-sub">Encore disponibles / en traitement</p>
-                        </div>
-                        <div class="stat-icon bg-dark">
-                            <i class="ti ti-clock text-white"></i>
-                        </div>
-                    </div>
-                </div>
-            </div-->
 
 <div class="col-xl-3 col-md-6">
     <div class="card bg-purple-img border-0 shadow-sm">
@@ -81,75 +66,13 @@
 
 </div>
 
-<!-- ================= STATUS KPI PRO ================= -->
-<div class="row mt-4 g-3">
-
-<!-- SOLD -->
-<div class="col-xl-4">
-    <div class="card border-0 shadow-sm bg-warning-subtle">
-        <div class="card-body d-flex justify-content-between align-items-center">
-
-            <div>
-                <h6 class="text-warning fw-semibold mb-1">Véhicules Vendus</h6>
-                <h2 class="fw-bold text-dark">{{ $soldVehicles }}</h2>
-                <small class="text-muted">Performance commerciale</small>
-            </div>
-
-            <div class="bg-warning rounded-circle p-3">
-                <i class="ti ti-cash text-white fs-2"></i>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<!-- APPROVED -->
-<div class="col-xl-4">
-    <div class="card border-0 shadow-sm bg-success-subtle">
-        <div class="card-body d-flex justify-content-between align-items-center">
-
-            <div>
-                <h6 class="text-success fw-semibold mb-1">Véhicules Approuvés</h6>
-                <h2 class="fw-bold text-dark">{{ $approvedVehicles }}</h2>
-                <small class="text-muted">Disponibles à la vente</small>
-            </div>
-
-            <div class="bg-success rounded-circle p-3">
-                <i class="ti ti-circle-check text-white fs-2"></i>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<!-- REJECTED -->
-<div class="col-xl-4">
-    <div class="card border-0 shadow-sm bg-danger-subtle">
-        <div class="card-body d-flex justify-content-between align-items-center">
-
-            <div>
-                <h6 class="text-danger fw-semibold mb-1">Véhicules Rejetés</h6>
-                <h2 class="fw-bold text-dark">{{ $rejectedVehicles }}</h2>
-                <small class="text-muted">Inspection échouée</small>
-            </div>
-
-            <div class="bg-danger rounded-circle p-3">
-                <i class="ti ti-alert-triangle text-white fs-2"></i>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-</div>
-
 <!-- ================= CHARTS ================= -->
 <div class="row mt-4 g-3">
 
 <div class="col-xl-6">
     <div class="card shadow-sm border-0">
         <div class="card-body">
-            <h5 class="fw-semibold mb-3">Véhicules par Marque</h5>
+            <h5 class="fw-semibold mb-3">Véhicules par Marque et Modèle</h5>
             <canvas id="brandChart"></canvas>
         </div>
     </div>
@@ -174,21 +97,45 @@
 
 <script>
 
-// ===== VEHICULES PAR MARQUE =====
-const brandLabels = {!! json_encode($vehiclesByBrand->pluck('brand')) !!};
+// ===== VEHICULES PAR MARQUE (2 BARRES COTE A COTE) =====
+
+const labels = {!! json_encode($vehiclesByBrand->pluck('brand')) !!};
+
 const brandData = {!! json_encode($vehiclesByBrand->pluck('total')) !!};
+const modelData = {!! json_encode($vehiclesByModel->pluck('total')) !!};
 
 new Chart(document.getElementById('brandChart'), {
     type: 'bar',
     data: {
-        labels: brandLabels,
-        datasets: [{
-            label: 'Nombre de Véhicules',
-            data: brandData,
-            borderRadius: 6
-        }]
+        labels: labels,
+        datasets: [
+            {
+                label: 'Total par Marque',
+                data: brandData,
+                backgroundColor: '#4e73df',
+                borderRadius: 6
+            },
+            {
+                label: 'Total par Modèle',
+                data: modelData,
+                backgroundColor: '#9b59b6',
+                borderRadius: 6
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            x: {
+                stacked: false
+            },
+            y: {
+                beginAtZero: true
+            }
+        }
     }
 });
+
 
 // ===== VENDUS PAR MOIS =====
 const months = [
@@ -209,11 +156,13 @@ new Chart(document.getElementById('soldChart'), {
         datasets: [{
             label: 'Véhicules Vendus',
             data: soldMonthData,
+            borderColor: '#f6c23e',
             tension: 0.4
         }]
     }
 });
 
 </script>
+
 
 @endsection

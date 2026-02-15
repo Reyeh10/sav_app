@@ -3,18 +3,16 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
-
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\VendorDashboardController;
-
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
-AUTH ROUTES
+| AUTH ROUTES
 |--------------------------------------------------------------------------
 */
 
@@ -24,26 +22,36 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('/login', [LoginController::class, 'login']);
-
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])
-        ->name('register');
-
-    Route::post('/register', [RegisterController::class, 'register']);
 });
 
 /*
 |--------------------------------------------------------------------------
-LOGOUT
+| LOGOUT
 |--------------------------------------------------------------------------
 */
 
 Route::post('/logout', [LoginController::class, 'logout'])
-    ->middleware('auth')
+    ->middleware(['auth','nocache'])
     ->name('logout');
 
 /*
 |--------------------------------------------------------------------------
-DASHBOARD REDIRECT BY ROLE
+| FORCE PASSWORD
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth','nocache'])->group(function () {
+
+    Route::get('/force-password', [UserController::class, 'forcePasswordForm'])
+        ->name('force.password.form');
+
+    Route::post('/force-password', [UserController::class, 'saveNewPassword'])
+        ->name('force.password.save');
+});
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD REDIRECT
 |--------------------------------------------------------------------------
 */
 
@@ -59,20 +67,18 @@ Route::get('/dashboard', function () {
         default      => redirect()->route('login'),
     };
 
-})->middleware('auth')->name('dashboard');
+})->middleware(['auth','nocache'])->name('dashboard');
 
 /*
 |--------------------------------------------------------------------------
-PROTECTED ROUTES
+| PROTECTED ROUTES
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','nocache'])->group(function () {
 
     /*
-    ==================================================
-    VEHICLES
-    ==================================================
+    ================= VEHICLES =================
     */
 
     Route::get('/vehicles', [VehicleController::class, 'index'])
@@ -83,10 +89,6 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('role:admin,logistique,mecanicien,vendeur')
         ->name('vehicles.grid');
 
-    /*
-    ================= CREATE / STORE =================
-    */
-
     Route::get('/vehicles/create', [VehicleController::class, 'create'])
         ->middleware('role:admin,logistique')
         ->name('vehicles.create');
@@ -95,44 +97,40 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('role:admin,logistique')
         ->name('vehicles.store');
 
-    /*
-    ================= SHOW =================
-    */
-
     Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])
         ->middleware('role:admin,logistique,mecanicien,vendeur')
         ->name('vehicles.show');
 
-    /*
-    ================= EDIT / UPDATE =================
-    */
-
-    /* Route::get('/vehicles/{vehicle}/edit', [VehicleController::class, 'edit'])
+    Route::get('/vehicles/{vehicle}/edit', [VehicleController::class, 'edit'])
         ->middleware('role:admin,logistique,mecanicien')
         ->name('vehicles.edit');
 
     Route::put('/vehicles/{vehicle}', [VehicleController::class, 'update'])
         ->middleware('role:admin,logistique,mecanicien')
-        ->name('vehicles.update'); */
-        Route::get('/vehicles/{vehicle}/edit', [VehicleController::class, 'edit'])
-            ->middleware('role:admin,logistique,mecanicien,vendeur')
-            ->name('vehicles.edit');
+        ->name('vehicles.update');
 
-        Route::put('/vehicles/{vehicle}', [VehicleController::class, 'update'])
-            ->middleware('role:admin,logistique,mecanicien,vendeur')
-            ->name('vehicles.update');
+    Route::delete('/vehicles/{vehicle}', [VehicleController::class, 'destroy'])
+        ->middleware('role:admin')
+        ->name('vehicles.destroy');
 
-
-         /*
-    ================= voiture vendu =================
-    */
     Route::get('/vehicles-sold', [VehicleController::class, 'sold'])
-    ->middleware('role:admin,vendeur')
-    ->name('vehicles.sold');
-
+        ->middleware('role:admin,vendeur')
+        ->name('vehicles.sold');
 
     /*
-    ================= IMPORT EXCEL =================
+    ================= UPDATE PRICE (FIXED POSITION) =================
+    */
+
+    Route::get('/vehicles/{vehicle}/edit-price', [VehicleController::class, 'editPrice'])
+    ->middleware(['auth','role:vendeur'])
+    ->name('vehicles.editPrice');
+
+    Route::put('/vehicles/{vehicle}/update-price', [VehicleController::class, 'updatePrice'])
+    ->middleware(['auth','role:vendeur'])
+    ->name('vehicles.updatePrice');
+
+    /*
+    ================= IMPORT =================
     */
 
     Route::get('/vehicles/import', [VehicleController::class, 'importForm'])
@@ -172,21 +170,21 @@ Route::middleware(['auth'])->group(function () {
         ->name('vehicles.approved');
 
     /*
-    ================= DELETE =================
+    ================= QUICK CUSTOMER =================
     */
 
-    Route::delete('/vehicles/{vehicle}', [VehicleController::class, 'destroy'])
-        ->middleware('role:admin')
-        ->name('vehicles.destroy');
+    Route::post('/customers/quick-store', [CustomerController::class, 'quickStore'])
+        ->middleware('role:admin,vendeur')
+        ->name('customers.quickStore');
 });
 
 /*
 |--------------------------------------------------------------------------
-ADMIN DASHBOARD
+| ADMIN DASHBOARD
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth','nocache','role:admin'])->group(function () {
 
     Route::get('/dashboard/admindashboard', [AdminDashboardController::class, 'index'])
         ->name('dashboard.admindashboard');
@@ -194,30 +192,41 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-VENDEUR DASHBOARD
+| VENDEUR DASHBOARD
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth','role:vendeur'])->group(function () {
+Route::middleware(['auth','nocache','role:vendeur'])->group(function () {
 
     Route::get('/dashboard/vendor', [VendorDashboardController::class, 'index'])
         ->name('dashboard.vendor');
 });
 
-
 /*
 |--------------------------------------------------------------------------
-CUSTOMERS
+| CUSTOMERS
 |--------------------------------------------------------------------------
 */
 
-Route::resource('customers', CustomerController::class)
-    ->middleware('role:admin,vendeur');
+Route::middleware(['auth','nocache','role:admin,vendeur'])->group(function () {
 
-Route::post('/customers/import', [CustomerController::class, 'importExcel'])
-    ->middleware('role:admin,vendeur')
-    ->name('customers.import');
+    Route::resource('customers', CustomerController::class);
 
-Route::get('/customers/export', [CustomerController::class, 'exportExcel'])
-    ->middleware('role:admin,vendeur')
-    ->name('customers.export');
+    Route::post('/customers/import', [CustomerController::class, 'importExcel'])
+        ->name('customers.import');
+
+    Route::get('/customers/export', [CustomerController::class, 'exportExcel'])
+        ->name('customers.export');
+});
+
+/*
+|--------------------------------------------------------------------------
+| USERS MANAGEMENT
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth','nocache','role:admin'])->group(function () {
+
+    Route::resource('users', UserController::class)
+        ->only(['index','create','store','edit','update']);
+});
