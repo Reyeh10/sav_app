@@ -2,8 +2,8 @@
 
 @section('content')
 
-<div class="page-wrapper">
-<div class="content">
+<!--div class="page-wrapper">
+<div class="content"-->
 
 <h3>Modifier rôle utilisateur</h3>
 
@@ -55,7 +55,7 @@ Enregistrer
 </div>
 </div>
 
-</div>
-</div>
+<!--/div>
+</div-->
 
 @endsection

@@ -2,76 +2,78 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Vehicle;
+use App\Models\Sale;
 use App\Models\Customer;
-use Illuminate\Support\Facades\DB;
+//use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class AdminDashboardController extends Controller
 {
     public function index()
     {
-        // ===== BASIC COUNTS =====
-        $totalVehicles = Vehicle::count();
-        $totalClients = Customer::count();
+        /* =============================
+           PARTIE 1 : KPI
+        ============================= */
+        $totalSold       = Sale::count();
+        $stockVehicles   = Vehicle::where('status', 'Disponible')->count();
+        $waitingVehicles = Vehicle::where('status', 'En attente')->count();
+        $totalClients    = Customer::count();
 
-        $activeVehicles = Vehicle::where('status', 'active')->count();
+        /* =============================
+           PARTIE 2 : ANALYSE
+        ============================= */
 
-        $newClients = Customer::whereDate(
-            'created_at',
-            '>=',
-            now()->subDays(30)
-        )->count();
+        // ✅ ventes par mois (12 mois, même si vide)
+        $salesRaw = Sale::selectRaw('MONTH(sold_date) as m, COUNT(*) as total')
+            ->groupBy('m')
+            ->orderBy('m')
+            ->pluck('total', 'm')
+            ->toArray();
 
-        // ===== STATUS COUNTS =====
-        $soldVehicles = Vehicle::where('status', 'sold')->count();
-        $approvedVehicles = Vehicle::where('status', 'approved')->count();
-        $rejectedVehicles = Vehicle::where('status', 'rejected')->count();
+        $salesByMonth = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $salesByMonth[] = $salesRaw[$i] ?? 0;
+        }
 
-        // ===== VEHICLES BY BRAND =====
-        $vehiclesByBrand = Vehicle::select(
-                'brand',
-                DB::raw('count(*) as total')
-            )
+        // ✅ véhicules par marque
+        $vehiclesByBrand = Vehicle::selectRaw('brand as label, COUNT(*) as total')
+            ->whereNotNull('brand')
+            ->where('brand', '!=', '')
             ->groupBy('brand')
+            ->orderByDesc('total')
+            ->limit(8)
             ->get();
 
-        // ===== SOLD VEHICLES BY MONTH =====
-        $soldByMonth = Vehicle::select(
-                DB::raw('MONTH(sold_at) as month'),
-                DB::raw('count(*) as total')
-            )
-            ->where('status', 'sold')
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
-        // ⭐ IMPORTANT — VOITURES NON VENDUES
-        $notSoldVehicles = Vehicle::where('status', '!=', 'sold')->count();
+        /* =============================
+           PARTIE 3 : FLUX
+        ============================= */
 
-        $vehiclesByBrand = Vehicle::select('brand')
-        ->selectRaw('count(*) as total')
-        ->groupBy('brand')
-        ->get();
+        // ✅ arrivées par mois (12 mois)
+        $arrivalRaw = Vehicle::selectRaw('MONTH(arrival_date) as m, COUNT(*) as total')
+            ->whereNotNull('arrival_date')
+            ->groupBy('m')
+            ->orderBy('m')
+            ->pluck('total', 'm')
+            ->toArray();
 
-        $vehiclesByModel = Vehicle::select('brand')
-        ->selectRaw('count(*) as total')
-        ->groupBy('brand')
-        ->get();
+        $arrivalByMonth = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $arrivalByMonth[] = $arrivalRaw[$i] ?? 0;
+        }
 
-
+        // ✅ ventes par mois (réutilise)
+        $salesFlow = $salesByMonth;
 
         return view('dashboard.admindashboard', compact(
-            'totalVehicles',
+            'totalSold',
+            'stockVehicles',
+            'waitingVehicles',
             'totalClients',
-            'activeVehicles',
-            'newClients',
-            'soldVehicles',
-            'approvedVehicles',
-            'rejectedVehicles',
-            'notSoldVehicles',   // ⭐ OBLIGATOIRE
+            'salesByMonth',
             'vehiclesByBrand',
-            'vehiclesByModel',
-            'soldByMonth'
+            'arrivalByMonth',
+            'salesFlow'
         ));
     }
 }

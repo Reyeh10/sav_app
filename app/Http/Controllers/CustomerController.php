@@ -7,145 +7,171 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Imports\CustomersImport;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\CustomersExport;
-
+use Illuminate\Validation\Rule;
 
 class CustomerController extends Controller
 {
-    /* ===============================
-       ✅ LISTE CLIENTS (admin + vendeur)
-    =============================== */
-    public function index()
-    {
-        $customers = Customer::latest()->get();
-        return view('customers.index', compact('customers'));
-    }
 
+/* ===============================
+   ✅ LISTE CLIENTS (admin + vendeur)
+=============================== */
+public function index()
+{
+    $customers = Customer::latest()->get();
+    return view('customers.index', compact('customers'));
+}
 
-    /* ===============================
-       ✅ CREATE
-    =============================== */
-    public function create()
-    {
-        return view('customers.create');
-    }
+/* ===============================
+   ✅ CREATE
+=============================== */
+public function create()
+{
+    return view('customers.create');
+}
 
+/* ===============================
+   ✅ STORE
+=============================== */
+public function store(Request $request)
+{
+    $data = $request->validate([
+        'name'        => 'required|string|max:255',
+        'type_client' => 'required|string|max:100',
+        'phone'       => [
+            'required',
+            'regex:/^\d{2}\s\d{2}\s\d{2}\s\d{2}$/'
+        ],
+        'email'       => 'nullable|email|unique:customers,email',
+        'address'     => 'nullable|string|max:255',
+    ]);
 
-    /* ===============================
-       ✅ STORE
-    =============================== */
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'name'    => 'required|string|max:255',
-            'phone'   => 'required|string|max:50',
-            'email'   => 'nullable|email|unique:customers,email',
-            'address' => 'nullable|string|max:255',
-        ]);
+    Customer::create($data);
 
-        Customer::create($data);
+    return redirect()->route('customers.index')
+        ->with('success', "Client ajouté ✅");
+}
 
-        return redirect()->route('customers.index')
-            ->with('success', "Client ajouté ✅");
-    }
-
-
-    /* ===============================
-       ✅ EDIT
-    =============================== */
-    /* public function edit(Customer $customer)
-    {
-        return view('customers.edit', compact('customer'));
-    } */
-    public function edit($id)
+/* ===============================
+   ✅ EDIT
+=============================== */
+public function edit($id)
 {
     $customer = Customer::findOrFail($id);
-
     return view('customers.edit', compact('customer'));
 }
 
-
-    /* ===============================
-       ✅ UPDATE
-    =============================== */
-    public function update(Request $request, Customer $customer)
-    {
-        $data = $request->validate([
-            'name'    => 'required|string|max:255',
-            'phone'   => 'required|string|max:50',
-            'email'   => 'nullable|email|unique:customers,email,' . $customer->id,
-            'address' => 'nullable|string|max:255',
-        ]);
-
-        $customer->update([
-        'name' => $request->name,
-        'phone' => $request->phone,
-        'email' => $request->email,
-        'address' => $request->address
+/* ===============================
+   ✅ UPDATE
+=============================== */
+/* public function update(Request $request, Customer $customer)
+{
+    $data = $request->validate([
+        'name'        => 'required|string|max:255',
+        'type_client' => 'required|string|max:100',
+        'phone'       => [
+            'required',
+            'regex:/^\d{2}\s\d{2}\s\d{2}\s\d{2}$/'
+        ],
+        'email'       => 'nullable|email|unique:customers,email,' . $customer->id,
+        'address'     => 'nullable|string|max:255',
     ]);
-        $customer->update($data);
 
-        return redirect()->route('customers.index')
-            ->with('success', "Client modifié ✅");
+    $customer->update($data);
+
+    return redirect()->route('customers.index')
+        ->with('success', "Client modifié ✅");
+} */
+
+
+
+public function update(Request $request, $id)
+{
+    $customer = Customer::findOrFail($id);
+
+    $data = $request->validate([
+        'name'        => 'required|string|max:255',
+        'type_client' => 'required|string|max:100',
+        'phone'       => 'required|string|max:20',
+        'email'       => [
+            'nullable',
+            'email',
+            Rule::unique('customers')->ignore($customer->id),
+        ],
+        'address'     => 'nullable|string|max:255',
+    ]);
+
+    $customer->update($data);
+
+    return redirect()->route('customers.index')
+        ->with('success', "Client modifié avec succès ✅");
+}
+/* ===============================
+   ✅ DELETE (admin only)
+=============================== */
+public function destroy(Customer $customer)
+{
+    $customer->delete();
+
+    return redirect()->route('customers.index')
+        ->with('success', "Client supprimé ✅");
+}
+
+/* ===============================
+   ✅ IMPORT EXCEL (admin + vendeur)
+=============================== */
+public function importExcel(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx,xls,csv'
+    ]);
+
+    Excel::import(new CustomersImport, $request->file('file'));
+
+    return redirect()->route('customers.index')
+        ->with('success', "Import clients terminé ✅");
+}
+
+/* ===============================
+   ✅ QUICK STORE (AJAX MODAL)
+=============================== */
+public function quickStore(Request $request)
+{
+    $data = $request->validate([
+    'name'        => 'required|string|max:255|unique:customers,name',
+    'type_client' => 'required|string|max:100',
+    'phone'       => [
+        'required',
+        'regex:/^\d{2}\s\d{2}\s\d{2}\s\d{2}$/'
+    ],
+    'email'       => 'required|email|unique:customers,email',
+    'address'     => 'required|string|max:255',
+], [
+    'name.unique'  => 'Le nom existe déjà.',
+    'email.unique' => 'L’email existe déjà.',
+    'phone.regex'  => 'Format téléphone invalide (77 12 34 56).',
+]);
+
+    $customer = Customer::create($data);
+
+    return response()->json([
+        'success' => true,
+        'customer' => $customer
+    ]);
+}
+
+/* ===============================
+   ✅ EXPORT EXCEL (admin + vendeur)
+=============================== */
+public function exportExcel()
+{
+    if (!in_array(auth()->user()->role, ['admin', 'vendeur'])) {
+        abort(403);
     }
 
+    return Excel::download(
+        new \App\Exports\CustomersExport,
+        'clients.xlsx'
+    );
+}
 
-    /* ===============================
-       ✅ DELETE (admin only)
-    =============================== */
-    public function destroy(Customer $customer)
-    {
-        $customer->delete();
-
-        return redirect()->route('customers.index')
-            ->with('success', "Client supprimé ✅");
-    }
-
-
-    /* ===============================
-       ✅ IMPORT EXCEL (admin + vendeur)
-    =============================== */
-    public function importExcel(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv'
-        ]);
-
-        Excel::import(new CustomersImport, $request->file('file'));
-
-        return redirect()->route('customers.index')
-            ->with('success', "Import clients terminé ✅");
-    }
-       /* ===============================
-       ✅ Create new customer
-    =============================== */
-        public function quickStore(Request $request)
-            {
-                $request->validate([
-                    'name' => 'required|string|max:255',
-                    'phone' => 'nullable|string|max:50',
-                    'email' => 'nullable|email'
-                ]);
-
-                $customer = Customer::create([
-                    'name' => $request->name,
-                    'phone' => $request->phone,
-                    'email' => $request->email,
-                ]);
-
-                return response()->json($customer);
-            }
-
-    /* ===============================
-       ✅ EXPORT EXCEL (admin + vendeur)
-    =============================== */
-    public function exportExcel()
-    {
-        // ✅ Vérification rôle simple
-        if (!in_array(auth()->user()->role, ['admin', 'vendeur'])) {
-            abort(403);
-        }
-
-        return Excel::download(new \App\Exports\CustomersExport, 'clients.xlsx');
-    }
 }

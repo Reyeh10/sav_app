@@ -1,8 +1,8 @@
 @extends('layout.mainlayout')
 
 @section('content')
-<div class="page-wrapper">
-    <div class="content">
+<!--div class="page-wrapper">
+    <div class="content"-->
 
         <!-- Breadcrumb -->
         <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
@@ -49,13 +49,13 @@
                     </div>
 
                     <!-- Plate Number -->
-                    <div class="col-md-6 mb-3">
+                    <!--div class="col-md-6 mb-3">
                         <label class="form-label">Immatriculation</label>
                         <input type="text"
                                class="form-control"
-                               value="{{ $vehicle->plate_number }}"
+                               value="{ { $vehicle->plate_number }}"
                                readonly>
-                    </div>
+                    </div-->
 
                     <!-- Brand -->
                     <div class="col-md-6 mb-3">
@@ -75,12 +75,12 @@
                                readonly>
                     </div>
 
-                    <!-- Year -->
+                    <!-- Model Year (Remplace Année) -->
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Année</label>
+                        <label class="form-label">Model Year</label>
                         <input type="text"
                                class="form-control"
-                               value="{{ $vehicle->year }}"
+                               value="{{ $vehicle->model_year ?? $vehicle->year }}"
                                readonly>
                     </div>
 
@@ -98,18 +98,29 @@
                         <label class="form-label">Statut</label>
 
                         @php
-                            $badgeClass = match($vehicle->status) {
-                                'draft'      => 'bg-secondary',
-                                'inspected'  => 'bg-info',
-                                'approved'   => 'bg-success',
-                                'rejected'   => 'bg-danger',
-                                'sold'       => 'bg-warning',
-                                default      => 'bg-dark'
+                            // Si status vide → En attente
+                            $status = $vehicle->status ?? 'En attente';
+
+                            $badgeClass = match($status) {
+
+                                // Version française
+                                'Disponible'     => 'bg-success',
+                                'En réparation'  => 'bg-warning',
+                                'En attente'     => 'bg-info',
+                                'Vendu'          => 'bg-danger',
+
+                                // Version technique
+                                'draft'          => 'bg-secondary',
+                                'approved'       => 'bg-success',
+                                'rejected'       => 'bg-danger',
+                                'sold'           => 'bg-warning',
+
+                                default          => 'bg-info'
                             };
                         @endphp
 
                         <span class="badge {{ $badgeClass }} p-2">
-                            {{ ucfirst($vehicle->status) }}
+                            {{ ucfirst($status) }}
                         </span>
                     </div>
 
@@ -117,10 +128,12 @@
 
                 <!-- Actions buttons -->
                 <div class="mt-4">
-                    <a href="{{ route('vehicles.edit', $vehicle->id) }}"
-                       class="btn btn-warning">
-                        <i class="ti ti-edit"></i> Modifier
-                    </a>
+                    @if(auth()->user()->role !== 'vendeur')
+                        <a href="{{ route('vehicles.edit', $vehicle->id) }}"
+                           class="btn btn-warning">
+                            <i class="ti ti-edit"></i> Modifier
+                        </a>
+                    @endif
 
                     <a href="{{ route('vehicles.index') }}"
                        class="btn btn-light ms-2">
@@ -131,6 +144,6 @@
             </div>
         </div>
 
-    </div>
-</div>
+    <!--/div>
+</div-->
 @endsection

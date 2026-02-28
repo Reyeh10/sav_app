@@ -1,9 +1,12 @@
 @extends('layout.mainlayout')
-
 @section('content')
 
-<div class="page-wrapper">
-<div class="content">
+@php
+    $role = auth()->user()->role;
+@endphp
+
+<!--div class="page-wrapper">
+<div class="content"-->
 
 <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-4">
     <div>
@@ -48,22 +51,9 @@
            value="{{ old('vin') }}"
            class="form-control @error('vin') is-invalid @enderror"
            placeholder="Ex: 1HGCM82633A123456">
-
     @error('vin')
-        <div class="invalid-feedback">
-            {{ $message }}
-        </div>
+        <div class="invalid-feedback">{{ $message }}</div>
     @enderror
-</div>
-
-{{-- ================= IMMATRICULATION ================= --}}
-<div class="col-md-6 mb-3">
-    <label class="form-label">Immatriculation</label>
-    <input type="text"
-           name="plate_number"
-           value="{{ old('plate_number') }}"
-           class="form-control"
-           placeholder="Ex: AB-123-CD">
 </div>
 
 {{-- ================= MARQUE ================= --}}
@@ -74,11 +64,8 @@
            value="{{ old('brand') }}"
            class="form-control @error('brand') is-invalid @enderror"
            placeholder="Ex: Toyota">
-
     @error('brand')
-        <div class="invalid-feedback">
-            {{ $message }}
-        </div>
+        <div class="invalid-feedback">{{ $message }}</div>
     @enderror
 </div>
 
@@ -90,28 +77,55 @@
            value="{{ old('model') }}"
            class="form-control @error('model') is-invalid @enderror"
            placeholder="Ex: Corolla">
-
     @error('model')
-        <div class="invalid-feedback">
-            {{ $message }}
-        </div>
+        <div class="invalid-feedback">{{ $message }}</div>
     @enderror
 </div>
 
-{{-- ================= ANNEE ================= --}}
-<div class="col-md-4 mb-3">
-    <label class="form-label">Année *</label>
+{{-- ================= MODEL YEAR ================= --}}
+<div class="col-md-6 mb-3">
+    <label class="form-label">Model Year</label>
     <input type="number"
-           name="year"
-           value="{{ old('year') }}"
-           class="form-control @error('year') is-invalid @enderror"
-           placeholder="2024">
-
-    @error('year')
-        <div class="invalid-feedback">
-            {{ $message }}
-        </div>
+           name="model_year"
+           value="{{ old('model_year') }}"
+           class="form-control @error('model_year') is-invalid @enderror"
+           placeholder="Ex: 2024">
+    @error('model_year')
+        <div class="invalid-feedback">{{ $message }}</div>
     @enderror
+</div>
+
+{{-- ================= ENGINE ================= --}}
+<div class="col-md-6 mb-3">
+    <label class="form-label">Engine</label>
+    <select name="engine" class="form-control">
+        <option value="">-- Select --</option>
+        <option value="Essence" {{ old('engine')=='Essence'?'selected':'' }}>Essence</option>
+        <option value="Diesel" {{ old('engine')=='Diesel'?'selected':'' }}>Diesel</option>
+        <option value="HEV" {{ old('engine')=='HEV'?'selected':'' }}>HEV</option>
+        <option value="PHEV" {{ old('engine')=='PHEV'?'selected':'' }}>PHEV</option>
+        <option value="Electrique" {{ old('engine')=='Electrique'?'selected':'' }}>Electrique</option>
+    </select>
+</div>
+
+{{-- ================= CONFIGURATION ================= --}}
+<div class="col-md-6 mb-3">
+    <label class="form-label">Configuration</label>
+    <select name="configuration" class="form-control">
+        <option value="">-- Select --</option>
+        <option value="Basic" {{ old('configuration')=='Basic'?'selected':'' }}>Basic</option>
+        <option value="Medium Option" {{ old('configuration')=='Medium Option'?'selected':'' }}>Medium Option</option>
+        <option value="Full Option" {{ old('configuration')=='Full Option'?'selected':'' }}>Full Option</option>
+    </select>
+</div>
+
+{{-- ================= ENGINE NUMBER ================= --}}
+<div class="col-md-6 mb-3">
+    <label class="form-label">Engine Number</label>
+    <input type="text"
+           name="engine_number"
+           value="{{ old('engine_number') }}"
+           class="form-control">
 </div>
 
 {{-- ================= COULEURS ================= --}}
@@ -133,11 +147,14 @@
 
 {{-- ================= DATE ================= --}}
 <div class="col-md-6 mb-3">
-    <label class="form-label">Date d’arrivée</label>
+    <label class="form-label">Date d’arrivée *</label>
     <input type="date"
            name="arrival_date"
            value="{{ old('arrival_date') }}"
-           class="form-control">
+           class="form-control @error('arrival_date') is-invalid @enderror">
+    @error('arrival_date')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
 </div>
 
 {{-- ================= KILOMETRAGE ================= --}}
@@ -145,7 +162,7 @@
     <label class="form-label">Kilométrage</label>
     <input type="number"
            name="mileage"
-           value="{{ old('mileage') }}"
+           value="{{ old('mileage',0) }}"
            class="form-control">
 </div>
 
@@ -156,17 +173,49 @@
               class="form-control"
               rows="3">{{ old('comment') }}</textarea>
 </div>
+{{-- ================= STATUS ================= --}}
+<!--div class="col-md-6 mb-3">
+    <label class="form-label">Statut *</label>
+    <select name="status"
+            class="form-control @ error('status') is-invalid @ enderror">
+        <option value="Disponible" { { old('status')=='Disponible'?'selected':'' }}>Disponible</option>
+        <option value="En réparation" { { old('status')=='En réparation'?'selected':'' }}>En réparation</option>
+        <option value="En attente" { { old('status')=='En attente'?'selected':'' }}>En attente</option>
+        <option value="Vendu" { { old('status')=='Vendu'?'selected':'' }}>Vendu</option>
+    </select>
 
-{{-- ================= IMAGE ================= --}}
+    @ error('status')
+        <div class="invalid-feedback">{ { $message }}</div>
+    @ enderror
+</div-->
+
+@if($role === 'admin')
 <div class="col-md-6 mb-3">
+<label class="form-label">Statut *</label>
+<select name="status" class="form-control">
+    <option value="Disponible">Disponible</option>
+    <option value="En réparation">En réparation</option>
+    <option value="En attente">En attente</option>
+    <option value="Vendu">Vendu</option>
+</select>
+</div>
+@endif
+{{-- ================= IMAGE ================= --}}
+<!--div class="col-md-6 mb-3">
     <label class="form-label">Image voiture</label>
     <input type="file" name="image" class="form-control">
+</div-->
+@if($role === 'admin')
+<div class="col-md-6 mb-3">
+<label class="form-label">Image voiture</label>
+<input type="file" name="image" class="form-control">
 </div>
+@endif
 
 </div>
 
 <div class="d-flex justify-content-end mt-4 gap-2">
-    <a href="{{ route('vehicles.index') }}" class="btn btn-light">
+    <a href="{{ route('customers.index') }}" class="btn btn-light">
         Annuler
     </a>
 
@@ -180,7 +229,7 @@
 </div>
 </div>
 
-</div>
-</div>
+<!--/div>
+</div-->
 
 @endsection

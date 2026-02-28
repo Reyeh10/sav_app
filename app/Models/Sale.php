@@ -10,17 +10,21 @@ use App\Models\User;
 
 class Sale extends Model
 {
+
+     use HasFactory;
     protected $fillable = [
         'vehicle_id',
         'customer_id',
         'sold_by',
         'sold_price',
         'sold_date',
+         'payment_type',
     ];
 
     protected $casts = [
         'sold_date' => 'datetime',
-        'sold_price' => 'float'
+        //'sold_price' => 'float'
+         'sold_price' => 'decimal:2',
     ];
 
     public function vehicle()

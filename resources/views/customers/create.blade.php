@@ -2,8 +2,8 @@
 
 @section('content')
 
-<div class="page-wrapper">
-    <div class="content">
+<!--div class="page-wrapper">
+    <div class="content"-->
 
         <!-- Breadcrumb -->
         <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
@@ -36,6 +36,27 @@
                             <label class="form-label">Nom *</label>
                             <input type="text" name="name" class="form-control" required>
                         </div>
+
+                        <!-- Type de client -->
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Type de client *</label>
+                            <select name="type_client"
+                                    class="form-control @error('type_client') is-invalid @enderror"
+                                    required>
+
+                                <option value="">-- Sélectionner --</option>
+                                <option value="Particulier" {{ old('type_client')=='Particulier'?'selected':'' }}>Particulier</option>
+                                <option value="Gouvernement" {{ old('type_client')=='Gouvernement'?'selected':'' }}>Gouvernement</option>
+                                <option value="Para-public" {{ old('type_client')=='Para-public'?'selected':'' }}>Para-public</option>
+                                <option value="Privee" {{ old('type_client')=='Privee'?'selected':'' }}>Privée</option>
+                            </select>
+
+                            @error('type_client')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
 
                         <!-- Téléphone -->
                         <div class="col-md-6 mb-3">
@@ -70,7 +91,7 @@
             </div>
         </div>
 
-    </div>
-</div>
+    <!--/div>
+</div-->
 
 @endsection

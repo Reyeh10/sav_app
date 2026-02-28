@@ -1,87 +1,103 @@
-@extends('layouts.guest')
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Changer mot de passe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-@section('content')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<div class="account-content">
-    <div class="container">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff7a00, #ff5500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
 
-        <div class="account-box">
-            <div class="account-wrapper">
+        .card-box {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s ease-in-out;
+        }
 
-                <h3 class="account-title text-warning">
-                    Changer votre mot de passe
-                </h3>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
 
-                <p class="account-subtitle">
-                    Première connexion — Sécurité obligatoire
-                </p>
+        .title {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
 
-                {{-- USER INFO --}}
-                <div class="mb-3 text-start">
-                    <label class="form-label fw-bold">Nom</label>
-                    <input type="text"
-                           class="form-control"
-                           value="{{ auth()->user()->name }}"
-                           readonly>
-                </div>
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
 
-                <div class="mb-3 text-start">
-                    <label class="form-label fw-bold">Email</label>
-                    <input type="text"
-                           class="form-control"
-                           value="{{ auth()->user()->email }}"
-                           readonly>
-                </div>
+        .btn-save {
+            background: linear-gradient(135deg, #16c172, #0fb65f);
+            border: none;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
 
-                {{-- FORM --}}
-                <form method="POST" action="{{ route('force.password.save') }}">
-                    @csrf
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(22,193,114,0.4);
+        }
+    </style>
+</head>
 
-                    {{-- PASSWORD --}}
-                    <div class="mb-3 text-start">
-                        <label class="form-label">Nouveau mot de passe</label>
+<body>
 
-                        <input type="password"
-                               name="password"
-                               class="form-control @error('password') is-invalid @enderror"
-                               minlength="8"
-                               pattern="(?=.*[A-Za-z])(?=.*\d).{8,}"
-                               title="Minimum 8 caractères avec au moins 1 lettre et 1 chiffre"
-                               required>
+<div class="card-box">
 
-                        {{-- ERREUR LARAVEL --}}
-                        @error('password')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
+    <h3 class="title">🔐 Changer votre mot de passe</h3>
+    <div class="subtitle">Première connexion — Sécurité obligatoire</div>
 
-                        <small class="text-muted">
-                            Minimum 8 caractères, au moins 1 lettre et 1 chiffre
-                        </small>
-                    </div>
+    <form method="POST" action="{{ route('force.password.save') }}">
+        @csrf
 
-                    {{-- CONFIRM PASSWORD --}}
-                    <div class="mb-3 text-start">
-                        <label class="form-label">Confirmer mot de passe</label>
-
-                        <input type="password"
-                               name="password_confirmation"
-                               class="form-control"
-                               minlength="8"
-                               required>
-                    </div>
-
-                    <button class="btn btn-success w-100">
-                        Enregistrer et entrer dans le système
-                    </button>
-
-                </form>
-
-            </div>
+        <div class="mb-3">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-control" value="{{ auth()->user()->name }}" readonly>
         </div>
 
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="text" class="form-control" value="{{ auth()->user()->email }}" readonly>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Nouveau mot de passe</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Confirmer mot de passe</label>
+            <input type="password" name="password_confirmation" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-save w-100">
+            Enregistrer et entrer dans le système
+        </button>
+
+    </form>
+
 </div>
 
-@endsection
+</body>
+</html>

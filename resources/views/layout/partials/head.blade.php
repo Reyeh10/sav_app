@@ -1,5 +1,6 @@
 <!-- ✅ Favicon -->
-<link rel="shortcut icon" href="{{ asset('admintemplate/assets/img/favicon.png') }}">
+<!--link rel="shortcut icon" href="{ { asset('admintemplate/assets/img/favicon.png') }}"-->
+<link rel="shortcut icon" href="{{ asset('images/stcd.jpg') }}?v=5">
 
 <!-- ✅ Bootstrap -->
 <link rel="stylesheet" href="{{ asset('admintemplate/assets/css/bootstrap.min.css') }}">

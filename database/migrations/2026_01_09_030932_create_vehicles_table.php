@@ -19,16 +19,15 @@ return new class extends Migration
         $table->string('model');
         $table->string('color_exterior')->nullable();
         $table->string('color_interior')->nullable();
-        $table->integer('year');
+        $table->integer('year')->nullable()->change();
         $table->date('arrival_date')->nullable();
         $table->integer('mileage')->default(0);
         $table->enum('status', [
-            'draft',
-            'inspected',
-            'approved',
-            'rejected',
-            'sold'
-        ])->default('draft');
+            'Disponible',
+            'En réparation',
+            'En attente',
+            'Vendu'
+        ])->default('En attente');
         $table->timestamps();
 });
 

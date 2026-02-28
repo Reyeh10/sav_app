@@ -157,10 +157,14 @@ Route::middleware(['auth','nocache'])->group(function () {
     ================= SALES =================
     */
 
-    Route::get('/sales/create', [SaleController::class, 'create'])
+    Route::get('/sales/create/', [SaleController::class, 'create'])
         ->middleware('role:admin,vendeur')
         ->name('sales.create');
 
+    Route::get('/sales/create/{vehicle}', [SaleController::class, 'createWithVehicle'])
+    ->name('sales.create.withVehicle');
+
+    // Route pour bouton "Vendre" avec ID
     Route::post('/sales', [SaleController::class, 'store'])
         ->middleware('role:admin,vendeur')
         ->name('sales.store');
@@ -186,8 +190,11 @@ Route::middleware(['auth','nocache'])->group(function () {
 
 Route::middleware(['auth','nocache','role:admin'])->group(function () {
 
-    Route::get('/dashboard/admindashboard', [AdminDashboardController::class, 'index'])
-        ->name('dashboard.admindashboard');
+    /* Route::get('/dashboard/admindashboard', [AdminDashboardController::class, 'index'])
+        ->name('dashboard.admindashboard'); */
+        Route::get('/dashboard/admindashboard', [AdminDashboardController::class, 'index'])
+    ->middleware(['auth','role:admin'])
+    ->name('dashboard.admindashboard');
 });
 
 /*

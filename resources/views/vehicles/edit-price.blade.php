@@ -2,8 +2,8 @@
 
 @section('content')
 
-<div class="page-wrapper">
-    <div class="content">
+<!--div class="page-wrapper">
+    <div class="content"-->
 
         <div class="card">
             <div class="card-body">
@@ -23,12 +23,12 @@
                     <div class="mb-3">
                         <label class="form-label">Prix de vente</label>
 
-                        <input type="number"
+                        <input type="text"
                             name="sold_price"
-                            value="{{ old('sold_price', optional($vehicle->sale)->sold_price) }}"
                             class="form-control"
-                            step="0.01"
-                            min="0"
+                            value="{{ old('sold_price', $vehicle->sale?->sold_price) }}"
+                            placeholder="Ex: 1000000,50"
+                            inputmode="decimal"
                             required>
 
                     </div>

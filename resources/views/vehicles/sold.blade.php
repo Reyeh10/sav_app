@@ -2,14 +2,39 @@
 
 @section('content')
 
-<div class="page-wrapper">
-    <div class="content">
+<!--div class="page-wrapper">
+    <div class="content"-->
 
         <div class="card">
             <div class="card-body">
 
                 <h4 class="mb-4">Liste des voitures vendues</h4>
+                <!-- ================= SEARCH ================= -->
+                <form method="GET" action="{{ route('vehicles.sold') }}" class="mb-3">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-4">
+                            <input type="text"
+                                name="search"
+                                value="{{ request('search') }}"
+                                class="form-control"
+                                placeholder="Rechercher par VIN, marque, modèle...">
+                        </div>
 
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-warning">
+                                🔍 Rechercher
+                            </button>
+                        </div>
+
+                        @if(request('search'))
+                        <div class="col-auto">
+                            <a href="{{ route('vehicles.sold') }}" class="btn btn-secondary">
+                                Réinitialiser
+                            </a>
+                        </div>
+                        @endif
+                    </div>
+                </form>
                 {{-- ================= ALERTS ================= --}}
                 @if(session('success'))
                 <script>
@@ -47,8 +72,9 @@
                                 <th>Numéro VIN</th>
                                 <th>Marque</th>
                                 <th>Modèle</th>
-                                <th>Année</th>
+                                <th>Model year</th>
                                 <th>Prix de vente</th>
+                                 <th>Date de vente</th>
                                 <th>Statut</th>
                                 <th width="180">Actions</th>
                             </tr>
@@ -73,12 +99,19 @@
                                         Non défini
                                     @endif
                                 </td>
-
+                                {{-- DATE DE VENTE --}}
+                                <td>
+                                    @if($vehicle->sold_at)
+                                        {{ \Carbon\Carbon::parse($vehicle->sold_at)->format('d/m/Y') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
 
                                 {{-- ================= STATUT ================= --}}
                                 <td>
                                     <span class="badge bg-success">
-                                        Sold
+                                        Vendu
                                     </span>
                                 </td>
 
@@ -121,12 +154,18 @@
                         </tbody>
 
                     </table>
+                     {{--  Pagination --}}
+                    @if(method_exists($vehicles, 'links'))
+                        <div class="mt-3 d-flex justify-content-center">
+                            {{ $vehicles->withQueryString()->links('pagination::bootstrap-5') }}
+                        </div>
+                    @endif
                 </div>
 
             </div>
         </div>
 
-    </div>
-</div>
+    <!--/div>
+</div-->
 
 @endsection

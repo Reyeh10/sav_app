@@ -8,10 +8,13 @@ use App\Models\Sale;
 
 class Customer extends Model
 {
+
+     use HasFactory;
     protected $fillable = [
         'name',
         'phone',
         'email',
+        'type_client',
         'address'
     ];
 

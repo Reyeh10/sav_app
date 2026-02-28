@@ -58,6 +58,7 @@ public function store(Request $request)
     $request->validate([
         'name' => ['required','string','max:255'],
         'email' => ['required','email','unique:users,email'],
+        //'password' => bcrypt($request->password),
         'temp_password' => [
             'required',
             Password::min(8)
@@ -75,6 +76,8 @@ public function store(Request $request)
         'must_change_password' => 1,
         'created_at' => now(),
         'updated_at' => now()
+
+
     ]);
 
     return redirect()->route('users.index')

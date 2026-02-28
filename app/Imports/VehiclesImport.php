@@ -12,19 +12,31 @@ class VehiclesImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
-        $vin    = $row['vin'] ?? null;
-        $brand  = $row['marque'] ?? $row['brand'] ?? null;
-        $model  = $row['modèle'] ?? $row['modele'] ?? null;
-        $year   = $row['année'] ?? $row['annee'] ?? null;
-
         /*
-        =====================================
-        BLOQUER SI CHAMP OBLIGATOIRE MANQUANT
-        =====================================
+        =====================================================
+        SUPPORT MULTI-NOMS (FR + EN + TON EXCEL ACTUEL)
+        =====================================================
         */
-        if(empty($vin) || empty($brand) || empty($model) || empty($year)){
+
+        $vin = $row['vin'] ?? null;
+
+        $brand = $row['brand']
+            ?? $row['marque']
+            ?? null;
+
+        $model = $row['model']
+            ?? $row['modele']
+            ?? $row['modèle']
+            ?? null;
+
+        $year = $row['model_year']
+            ?? $row['année']
+            ?? $row['annee']
+            ?? null;
+
+        if (empty($vin) || empty($brand) || empty($model) || empty($year)) {
             throw new Exception(
-                "Erreur Import : VIN, Marque, Modèle et Année sont obligatoires. Vérifiez votre fichier Excel."
+                "Erreur Import : VIN, Marque/Brand, Modèle/Model et Année/Model year sont obligatoires."
             );
         }
 
@@ -35,14 +47,52 @@ class VehiclesImport implements ToModel, WithHeadingRow
         */
         $arrivalDate = null;
 
-        if(!empty($row['date arrivée']) || !empty($row['date arrivee'])){
-            try{
-                $arrivalDate = Carbon::parse(
-                    $row['date arrivée'] ?? $row['date arrivee']
-                )->format('Y-m-d');
-            }catch(\Exception $e){
+        $arrivalRaw = $row['arrival_date']
+            ?? $row['date_arrivee']
+            ?? $row['date arrivée']
+            ?? null;
+
+        if (!empty($arrivalRaw)) {
+            try {
+                $arrivalDate = Carbon::parse($arrivalRaw)->format('Y-m-d');
+            } catch (\Exception $e) {
                 $arrivalDate = null;
             }
+        }
+
+        /*
+        =====================================
+        NOUVEAUX CHAMPS
+        =====================================
+        */
+        $engine = $row['engine'] ?? null;
+        $configuration = $row['configuration'] ?? null;
+        $engineNumber = $row['engine_number']
+            ?? $row['engine number']
+            ?? null;
+
+        /*
+        =====================================
+        ✅ CORRECTION STATUS (ANTI ERREUR SQL)
+        =====================================
+        */
+
+        $allowedStatus = [
+            'Disponible',
+            'En réparation',
+            'En attente',
+            'Vendu'
+        ];
+
+        $rawStatus = $row['status']
+            ?? $row['statut']
+            ?? null;
+
+        $rawStatus = trim($rawStatus);
+
+        // Si statut vide ou incorrect → valeur par défaut
+        if (!in_array($rawStatus, $allowedStatus)) {
+            $rawStatus = 'En attente';
         }
 
         return new Vehicle([
@@ -50,11 +100,30 @@ class VehiclesImport implements ToModel, WithHeadingRow
             'brand' => $brand,
             'model' => $model,
             'year' => $year,
-            'color_exterior' => $row['extérieur'] ?? $row['exterieur'] ?? null,
-            'color_interior' => $row['intérieur'] ?? $row['interieur'] ?? null,
+
+            'color_exterior' => $row['color_exterior']
+                ?? $row['extérieur']
+                ?? $row['exterieur']
+                ?? null,
+
+            'color_interior' => $row['color_interior']
+                ?? $row['intérieur']
+                ?? $row['interieur']
+                ?? null,
+
+            'engine' => $engine,
+            'configuration' => $configuration,
+            'engine_number' => $engineNumber,
+
             'arrival_date' => $arrivalDate,
-            'mileage' => $row['kilométrage'] ?? $row['kilometrage'] ?? 0,
-            'status' => strtolower($row['statut'] ?? 'draft'),
+
+            'mileage' => $row['mileage']
+                ?? $row['kilométrage']
+                ?? $row['kilometrage']
+                ?? 0,
+
+            // ✅ STATUS sécurisé
+            'status' => $rawStatus,
         ]);
     }
 }

@@ -2,8 +2,8 @@
 
 @section('content')
 
-<div class="page-wrapper">
-<div class="content">
+<!--div class="page-wrapper">
+<div class="content"-->
 
 <h3>Importer véhicules Excel</h3>
 
@@ -20,7 +20,7 @@ Importer
 
 </form>
 
-</div>
-</div>
+<!--/div>
+</div-->
 
 @endsection

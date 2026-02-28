@@ -505,3 +505,252 @@ select.select2-hidden-accessible {
 .register-link:hover{
     color:#ea580c;
 }
+/* Focus inputs + selects */
+.form-control:focus,
+.form-select:focus {
+    border-color: #ff6f00 !important;   /* Orange */
+    box-shadow: 0 0 0 0.2rem rgba(255,111,0,0.25) !important;
+}
+
+/* Optionnel : hover */
+.form-control:hover,
+.form-select:hover {
+    border-color: #ff6f00;
+}
+/* ================================= */
+/* FORCE ORANGE FOR ALL SELECTS     */
+/* ================================= */
+
+select.form-control:focus,
+select.form-select:focus,
+.form-control:focus,
+.form-select:focus {
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 0.2rem rgba(249,115,22,0.25) !important;
+}
+
+/* Remove Bootstrap blue outline */
+.form-control:focus,
+.form-select:focus {
+    outline: none !important;
+}
+.select2-container--default .select2-results__option--highlighted {
+    background-color: #f97316 !important;
+    color: #fff !important;
+}
+/* FORCE ORANGE SELECT2 */
+.select2-container--default .select2-results__option--highlighted {
+    background-color: #f97316 !important;
+    color: #fff !important;
+}
+
+.select2-container--default.select2-container--open .select2-selection--single {
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 0.2rem rgba(249,115,22,0.25) !important;
+}
+#customerType + .select2 {
+    margin-bottom: 15px !important;
+}
+.chart-wrap{
+    position: relative;
+    height: clamp(220px, 28vh, 300px);
+    width: 100%;
+}
+.header.header-premium {
+    height: 65px;
+}
+
+.page-wrapper {
+    padding-top: 65px !important;
+}
+.page-wrapper {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.content {
+    padding-top: 30px !important;
+    padding-bottom: 40px !important;
+    overflow: visible !important;
+}
+
+.container-fluid {
+    padding-bottom: 50px;
+}
+.main-wrapper {
+    min-height: 100vh !important;
+}
+
+.page-wrapper {
+    min-height: 100vh !important;
+}
+
+.content {
+    min-height: auto !important;
+    overflow: visible !important;
+}
+.container-fluid {
+    padding-bottom: 80px !important;
+}
+.container-fluid {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+:root {
+    --sidebar-width: 260px;
+    --header-height: 80px;
+    --primary-color: #ff7a00;
+}
+
+/* ================= HEADER ================= */
+
+.header-premium {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    height: var(--header-height);
+    background: linear-gradient(135deg, #ff7a00, #ff5e00);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    z-index: 10000;
+}
+
+/* Left */
+.header-main-title {
+    font-weight: 700;
+    color: #fff;
+    font-size: 18px;
+}
+
+.header-sub-title {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+}
+
+/* Right user */
+.header-user-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+/* USER BUTTON */
+.user-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 50px;
+    padding: 6px 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.user-btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-1px);
+}
+
+/* Avatar */
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+}
+
+/* Text */
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.user-status {
+    font-size: 11px;
+    color: #b7ffb7;
+}
+
+/* Dropdown */
+.user-dropdown {
+    border-radius: 12px;
+    padding: 8px 0;
+    border: none;
+}
+/* ================= DASHBOARD PREMIUM ================= */
+
+.stat-card {
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+    transition: all 0.25s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.stat-label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.stat-circle {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+}
+/* ===== STAT CARDS ===== */
+.stat-card {
+    border-radius: 18px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.1);
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+/* ===== CHART CARD ===== */
+.chart-card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.06);
+}
+
+/* ===== PERFORMANCE BADGE ===== */
+.performance-badge {
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 30px;
+}

@@ -2,8 +2,8 @@
 
 @section('content')
 
-<div class="page-wrapper">
-<div class="content">
+<!--div class="page-wrapper">
+<div class="content"-->
 
 <div class="page-header mb-4">
     <h3 class="page-title">Modifier Client</h3>
@@ -11,6 +11,17 @@
 
 <div class="card">
 <div class="card-body">
+
+@if ($errors->any())
+    <div class="alert alert-danger shadow-sm">
+        <strong>Erreur :</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+                <li>• {{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
 <form method="POST" action="{{ route('customers.update', $customer->id) }}">
 @csrf
@@ -23,6 +34,16 @@
        class="form-control"
        value="{{ old('name', $customer->name) }}"
        required>
+</div>
+
+<div class="mb-3">
+    <label>Type de client</label>
+    <select name="type_client" class="form-select" required>
+        <option value="Particulier" {{ $customer->type_client == 'Particulier' ? 'selected' : '' }}>Particulier</option>
+        <option value="Gouvernement" {{ $customer->type_client == 'Gouvernement' ? 'selected' : '' }}>Gouvernement</option>
+        <option value="Para-public" {{ $customer->type_client == 'Para-public' ? 'selected' : '' }}>Para-public</option>
+        <option value="Privee" {{ $customer->type_client == 'Privee' ? 'selected' : '' }}>Privée</option>
+    </select>
 </div>
 
 <div class="mb-3">
@@ -61,7 +82,7 @@ Retour
 </div>
 </div>
 
-</div>
-</div>
+<!--/div>
+</div-->
 
 @endsection

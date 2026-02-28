@@ -2,19 +2,21 @@
 
 @section('content')
 
-<div class="page-wrapper">
-    <div class="content">
+<!--div class="page-wrapper">
+    <div class="content"-->
 
         {{-- ✅ Flash Messages --}}
         @if(session('success'))
-            <div class="alert alert-success">
+            <div class="alert alert-success alert-dismissible fade show">
                 {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
         @if(session('error'))
-            <div class="alert alert-danger">
+            <div class="alert alert-danger alert-dismissible fade show">
                 {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
@@ -40,17 +42,17 @@
 
                 {{-- ✅ Ajouter Client --}}
                 @if(auth()->user()->isAdmin() || auth()->user()->isVendeur())
-                <a href="{{ route('customers.create') }}"
+                <!--a href="{ { route('customers.create') }}"
                    class="btn btn-primary">
                     <i class="ti ti-circle-plus me-2"></i>
                     Ajouter client
-                </a>
+                </a-->
                 @endif
 
 
                 {{-- ✅ Import Excel --}}
                 @if(auth()->user()->isAdmin() || auth()->user()->isVendeur())
-                <button class="btn btn-outline-green"
+                <button class="btn btn-outline-success"
                         data-bs-toggle="modal"
                         data-bs-target="#importCustomerExcelModal">
                     📥 Importer Excel
@@ -79,7 +81,7 @@
                         </thead>
 
                         <tbody>
-                            @foreach($customers as $customer)
+                            @forelse($customers as $customer)
                             <tr>
 
                                 <!-- Avatar + Nom -->
@@ -99,7 +101,7 @@
                                     </div>
                                 </td>
 
-                                <td>{{ $customer->phone }}</td>
+                                <td>{{ $customer->phone ?? '-' }}</td>
                                 <td>{{ $customer->email ?? '-' }}</td>
                                 <td>{{ $customer->address ?? '-' }}</td>
 
@@ -124,7 +126,7 @@
                                             @csrf
                                             @method('DELETE')
 
-                                            <button class="btn btn-sm btn-danger">
+                                            <button type="submit" class="btn btn-sm btn-danger">
                                                 <i class="ti ti-trash"></i>
                                             </button>
                                         </form>
@@ -134,7 +136,13 @@
                                 </td>
 
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="5" class="text-center text-muted p-4">
+                                    Aucun client enregistré
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
 
                     </table>
@@ -173,9 +181,10 @@
                             <input type="file"
                                    name="file"
                                    class="form-control"
+                                   accept=".xlsx,.xls"
                                    required>
 
-                            <small class="text-muted">
+                            <small class="text-muted d-block mt-2">
                                 Format attendu :
                                 Nom | Téléphone | Email | Adresse
                             </small>
@@ -196,7 +205,7 @@
         </div>
 
 
-    </div>
-</div>
+    <!--/div>
+</div-->
 
 @endsection

@@ -2,8 +2,8 @@
 
 @section('content')
 
-<div class="page-wrapper">
-<div class="content">
+<!--div class="page-wrapper">
+<div class="content"-->
 
 <!-- HEADER + BOUTON ADD USER -->
 <div class="d-md-flex d-block align-items-center justify-content-between mb-3">
@@ -104,7 +104,7 @@
 </div>
 </div>
 
-</div>
-</div>
+<!--/div>
+</div-->
 
 @endsection

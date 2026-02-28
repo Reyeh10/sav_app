@@ -2,167 +2,262 @@
 
 @section('content')
 
-<div class="page-wrapper">
-<div class="content">
+<style>
+    .dash-section-title{
+        font-weight: 800;
+        font-size: 20px;
+        margin: 22px 0 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
 
-<!-- ================= HEADER ================= -->
-<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-4">
-    <div>
-        <h2 class="fw-bold">Tableau de bord Administrateur</h2>
-        <p class="text-muted mb-0">Vue globale Véhicules & Clients</p>
-    </div>
-</div>
+    .kpi-card{
+        border: 0;
+        border-radius: 14px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.06);
+        padding: 18px;
+        height: 110px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        transition: .2s ease;
+    }
 
-<!-- ================= CARTES ================= -->
+    .kpi-card:hover{
+        transform: translateY(-3px);
+        box-shadow: 0 10px 22px rgba(0,0,0,.08);
+    }
+
+    .kpi-value{
+        font-size: 28px;
+        font-weight: 900;
+        margin:0;
+    }
+
+    .kpi-label{
+        color:#6c757d;
+        margin:0;
+        font-weight:600;
+    }
+
+    .chart-card{
+        border: 0;
+        border-radius: 14px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.06);
+        padding: 18px;
+    }
+
+    .chart-wrap{
+        position: relative;
+        height: 280px;   /* Taille contrôlée */
+        width: 100%;
+    }
+</style>
+
+<div class="container-fluid">
+
+{{-- ================= SECTION 1 ================= --}}
+<div class="dash-section-title">📊 Partie 1 — Indicateurs</div>
+
 <div class="row g-3">
 
-<div class="col-xl-3 col-md-6">
-    <div class="card bg-blue-img border-0 shadow-sm">
-        <div class="card-body d-flex justify-content-between align-items-center">
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card bg-white">
             <div>
-                <p class="mb-1 text-muted">Total Véhicules</p>
-                <h2 class="fw-bold">{{ $totalVehicles }}</h2>
+                <p class="kpi-value text-success">{{ $totalSold }}</p>
+                <p class="kpi-label">Voitures vendues</p>
             </div>
-            <i class="ti ti-car fs-1 opacity-75"></i>
+            <i class="ti ti-checks fs-1 text-success opacity-50"></i>
         </div>
     </div>
-</div>
 
-<div class="col-xl-3 col-md-6">
-    <div class="card bg-green-img border-0 shadow-sm">
-        <div class="card-body d-flex justify-content-between align-items-center">
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card bg-white">
             <div>
-                <p class="mb-1 text-muted">Voitures Non Vendues</p>
-                <h2 class="fw-bold">{{ $notSoldVehicles }}</h2>
+                <p class="kpi-value text-primary">{{ $stockVehicles }}</p>
+                <p class="kpi-label">Stock véhicules</p>
             </div>
-            <i class="ti ti-check fs-1 opacity-75"></i>
+            <i class="ti ti-car fs-1 text-primary opacity-50"></i>
         </div>
     </div>
-</div>
 
-<div class="col-xl-3 col-md-6">
-    <div class="card bg-purple-img border-0 shadow-sm">
-        <div class="card-body d-flex justify-content-between align-items-center">
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card bg-white">
             <div>
-                <p class="mb-1 text-muted">Total Clients</p>
-                <h2 class="fw-bold">{{ $totalClients }}</h2>
+                <p class="kpi-value text-warning">{{ $waitingVehicles }}</p>
+                <p class="kpi-label">Véhicules en attente</p>
             </div>
-            <i class="ti ti-users fs-1 opacity-75"></i>
+            <i class="ti ti-clock fs-1 text-warning opacity-50"></i>
         </div>
     </div>
-</div>
 
-<div class="col-xl-3 col-md-6">
-    <div class="card bg-yellow-img border-0 shadow-sm">
-        <div class="card-body d-flex justify-content-between align-items-center">
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card bg-white">
             <div>
-                <p class="mb-1 text-muted">Nouveaux Clients (30j)</p>
-                <h2 class="fw-bold">{{ $newClients }}</h2>
+                <p class="kpi-value text-info">{{ $totalClients }}</p>
+                <p class="kpi-label">Liste de clients</p>
             </div>
-            <i class="ti ti-user-plus fs-1 opacity-75"></i>
+            <i class="ti ti-users fs-1 text-info opacity-50"></i>
         </div>
     </div>
-</div>
 
 </div>
 
-<!-- ================= CHARTS ================= -->
-<div class="row mt-4 g-3">
 
-<div class="col-xl-6">
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <h5 class="fw-semibold mb-3">Véhicules par Marque et Modèle</h5>
-            <canvas id="brandChart"></canvas>
+{{-- ================= SECTION 2 ================= --}}
+<div class="dash-section-title">📈 Partie 2 — Analyse</div>
+
+<div class="row g-3">
+
+    <div class="col-lg-7">
+        <div class="chart-card bg-white">
+            <h6 class="fw-bold mb-3">Véhicules vendus par mois</h6>
+            <div class="chart-wrap">
+                <canvas id="salesChart"></canvas>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="col-xl-6">
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <h5 class="fw-semibold mb-3">Véhicules Vendus par Mois</h5>
-            <canvas id="soldChart"></canvas>
+    <div class="col-lg-5">
+        <div class="chart-card bg-white">
+            <h6 class="fw-bold mb-3">Répartition par marque</h6>
+            <div class="chart-wrap">
+                <canvas id="brandChart"></canvas>
+            </div>
         </div>
     </div>
+
 </div>
+
+
+{{-- ================= SECTION 3 ================= --}}
+<div class="dash-section-title">🚗 Partie 3 — Flux des véhicules</div>
+
+<div class="row g-3">
+
+    <div class="col-lg-6">
+        <div class="chart-card bg-white">
+            <h6 class="fw-bold mb-3">Arrivées par mois</h6>
+            <div class="chart-wrap">
+                <canvas id="arrivalChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="chart-card bg-white">
+            <h6 class="fw-bold mb-3">Ventes par mois</h6>
+            <div class="chart-wrap">
+                <canvas id="flowChart"></canvas>
+            </div>
+        </div>
+    </div>
 
 </div>
 
 </div>
-</div>
 
-<!-- ================= CHART JS ================= -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+const monthsFR = ["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"];
 
-// ===== VEHICULES PAR MARQUE (2 BARRES COTE A COTE) =====
+const salesData   = @json($salesByMonth);
+const arrivalData = @json($arrivalByMonth);
+const salesFlow   = @json($salesFlow);
 
-const labels = {!! json_encode($vehiclesByBrand->pluck('brand')) !!};
+const brandLabels = @json($vehiclesByBrand->pluck('label'));
+const brandValues = @json($vehiclesByBrand->pluck('total'));
 
-const brandData = {!! json_encode($vehiclesByBrand->pluck('total')) !!};
-const modelData = {!! json_encode($vehiclesByModel->pluck('total')) !!};
+// ===== Options propres =====
+function cleanOptions(maxY = null){
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top' }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { precision: 0 },
+                suggestedMax: maxY
+            }
+        }
+    };
+}
 
-new Chart(document.getElementById('brandChart'), {
+// ===== BAR =====
+new Chart(document.getElementById('salesChart'), {
     type: 'bar',
     data: {
-        labels: labels,
-        datasets: [
-            {
-                label: 'Total par Marque',
-                data: brandData,
-                backgroundColor: '#4e73df',
-                borderRadius: 6
-            },
-            {
-                label: 'Total par Modèle',
-                data: modelData,
-                backgroundColor: '#9b59b6',
-                borderRadius: 6
-            }
-        ]
+        labels: monthsFR,
+        datasets: [{
+            label: 'Ventes',
+            data: salesData,
+            backgroundColor: '#28a745',
+            borderRadius: 6
+        }]
+    },
+    options: cleanOptions(10)
+});
+
+// ===== DONUT =====
+new Chart(document.getElementById('brandChart'), {
+    type: 'doughnut',
+    data: {
+        labels: brandLabels,
+        datasets: [{
+            data: brandValues,
+            backgroundColor: ['#007bff','#28a745','#ffc107','#dc3545','#6f42c1']
+        }]
     },
     options: {
         responsive: true,
-        scales: {
-            x: {
-                stacked: false
-            },
-            y: {
-                beginAtZero: true
-            }
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+            legend: { position: 'top' }
         }
     }
 });
 
-
-// ===== VENDUS PAR MOIS =====
-const months = [
-'Janvier','Février','Mars','Avril','Mai','Juin',
-'Juillet','Août','Septembre','Octobre','Novembre','Décembre'
-];
-
-const soldMonthData = new Array(12).fill(0);
-
-@foreach($soldByMonth as $item)
-soldMonthData[{{ $item->month - 1 }}] = {{ $item->total }};
-@endforeach
-
-new Chart(document.getElementById('soldChart'), {
+// ===== LINE ARRIVAL =====
+new Chart(document.getElementById('arrivalChart'), {
     type: 'line',
     data: {
-        labels: months,
+        labels: monthsFR,
         datasets: [{
-            label: 'Véhicules Vendus',
-            data: soldMonthData,
-            borderColor: '#f6c23e',
-            tension: 0.4
+            label: 'Arrivées',
+            data: arrivalData,
+            borderColor: '#17a2b8',
+            backgroundColor: 'rgba(23,162,184,0.15)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4
         }]
-    }
+    },
+    options: cleanOptions(10)
 });
 
+// ===== LINE SALES =====
+new Chart(document.getElementById('flowChart'), {
+    type: 'line',
+    data: {
+        labels: monthsFR,
+        datasets: [{
+            label: 'Ventes',
+            data: salesFlow,
+            borderColor: '#dc3545',
+            backgroundColor: 'rgba(220,53,69,0.15)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4
+        }]
+    },
+    options: cleanOptions(10)
+});
 </script>
-
 
 @endsection

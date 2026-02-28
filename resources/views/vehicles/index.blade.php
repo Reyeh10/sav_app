@@ -2,8 +2,8 @@
 
 @section('content')
 
-<div class="page-wrapper">
-<div class="content">
+<!--div class="page-wrapper">
+<div class="content"-->
 
 <!-- ================= ALERTS ================= -->
 @if ($errors->any())
@@ -40,11 +40,11 @@ Liste des voitures enregistrées dans le système
 
 @if(in_array(auth()->user()->role, ['admin','logistique']))
 
-<a href="{{ route('vehicles.create') }}"
+<!--a href="{ { route('vehicles.create') }}"
 class="btn btn-orange shadow-sm">
 <i class="ti ti-circle-plus me-2"></i>
 Ajouter une voiture
-</a>
+</a-->
 
 <button class="btn btn-success shadow-sm"
 data-bs-toggle="modal"
@@ -65,21 +65,51 @@ Importer Excel
 <div class="card-body">
 
 <div class="table-responsive">
-<table class="table table-striped table-bordered datatable w-100 nowrap">
+<!--table class="table table-striped table-bordered datatable w-100 nowrap"-->
+<!-- ================= SEARCH ================= -->
+        <form method="GET" action="{{ route('vehicles.index') }}" class="mb-3">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <input type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        class="form-control"
+                        placeholder="Rechercher par VIN, marque, modèle...">
+                </div>
 
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">
+                        🔍 Rechercher
+                    </button>
+                </div>
+
+                @if(request('search'))
+                <div class="col-auto">
+                    <a href="{{ route('vehicles.index') }}" class="btn btn-secondary">
+                        Réinitialiser
+                    </a>
+                </div>
+                @endif
+            </div>
+        </form>
+<table class="table table-striped table-bordered w-100 nowrap">
 <thead class="table-light">
+
 <tr>
 <th>Image</th>
 <th>VIN</th>
-<th>Marque</th>
-<th>Modèle</th>
-<th>Couleur extérieur</th>
-<th>Couleur intérieur</th>
-<th>Année</th>
-<th>Date arrivée</th>
-<th>Prix de vente</th>
-<th>Statut</th>
-<th>Commentaire</th>
+<th>Brand</th>
+<th>Model</th>
+<th>Color exterior</th>
+<th>Color interior</th>
+<th>Model year</th>
+<th>Engine</th>
+<th>Configuration</th>
+<th>Engine Number</th>
+<th>Arrival date</th>
+<th>Sale price</th>
+<th>Status</th>
+<th>Comment</th>
 <th>Actions</th>
 </tr>
 </thead>
@@ -106,7 +136,20 @@ data-bs-target="#img{{ $vehicle->id }}">
 <td>{{ $vehicle->model ?? '-' }}</td>
 <td>{{ $vehicle->color_exterior ?? '-' }}</td>
 <td>{{ $vehicle->color_interior ?? '-' }}</td>
-<td>{{ $vehicle->year ?? '-' }}</td>
+<td>{{ $vehicle->model_year ?? '-' }}</td>
+
+<!-- ================= NOUVEAUX CHAMPS AJOUTÉS (SANS SUPPRIMER L’ANCIEN CODE) ================= -->
+<td>
+    {{ $vehicle->engine ?? '-' }}
+</td>
+
+<td>
+    {{ $vehicle->configuration ?? '-' }}
+</td>
+
+<td>
+    {{ $vehicle->engine_number ?? '-' }}
+</td>
 
 <!-- DATE ARRIVEE -->
 <td>
@@ -126,27 +169,17 @@ data-bs-target="#img{{ $vehicle->id }}">
 
 <!-- STATUS -->
 <td>
-@php
-$badge = match($vehicle->status){
-'draft' => 'secondary',
-'approved' => 'success',
-'rejected' => 'danger',
-'sold' => 'warning',
-default => 'dark'
-};
-
-$statusLabel = match($vehicle->status){
-'draft' => 'En cours d inspection',
-'approved' => 'Approuvé',
-'rejected' => 'Rejeté',
-'sold' => 'Vendu',
-default => ucfirst($vehicle->status)
-};
-@endphp
-
-<span class="badge bg-{{ $badge }}">
-{{ $statusLabel }}
-</span>
+    @if($vehicle->status == 'Disponible')
+        <span class="badge bg-success">Disponible</span>
+    @elseif($vehicle->status == 'En réparation')
+        <span class="badge bg-warning text-dark">En réparation</span>
+    @elseif($vehicle->status == 'En attente')
+        <span class="badge bg-secondary">En attente</span>
+    @elseif($vehicle->status == 'Vendu')
+        <span class="badge bg-danger">Vendu</span>
+    @else
+        <span class="badge bg-dark">{{ $vehicle->status }}</span>
+    @endif
 </td>
 
 <!-- COMMENTAIRE -->
@@ -186,14 +219,17 @@ class="btn btn-warning btn-sm">
 @endif
 
 @if(auth()->user()->role === 'admin')
-<form action="{{ route('vehicles.destroy',$vehicle->id) }}"
-method="POST"
-onsubmit="return confirm('Confirmer la suppression ?')">
-@csrf
-@method('DELETE')
-<button class="btn btn-danger btn-sm">
-<i class="ti ti-trash"></i>
-</button>
+<form id="delete-form-{{ $vehicle->id }}"
+      action="{{ route('vehicles.destroy', $vehicle->id) }}"
+      method="POST">
+    @csrf
+    @method('DELETE')
+
+    <button type="button"
+            class="btn btn-danger btn-sm"
+            onclick="confirmDelete({{ $vehicle->id }})">
+        <i class="ti ti-trash"></i>
+    </button>
 </form>
 @endif
 
@@ -241,7 +277,18 @@ data-bs-dismiss="modal"></button>
 </tbody>
 </table>
 </div>
-
+    <!-- ================= PAGINATION ================= -->
+   <!-- @ if(method_exists($vehicles, 'links'))
+    <div class="mt-3 d-flex justify-content-center">
+        { { $vehicles->withQueryString()->links() }}
+    </div>
+    @ endif-->
+    <!-- ================= PAGINATION ================= -->
+@if($vehicles instanceof \Illuminate\Pagination\LengthAwarePaginator)
+    <div class="mt-3 d-flex justify-content-center">
+        {{ $vehicles->withQueryString()->links('pagination::bootstrap-5') }}
+    </div>
+@endif
 </div>
 </div>
 
@@ -285,7 +332,7 @@ Importer
 </form>
 
 </div>
-</div>
-</div>
+<!--/div>
+</div-->
 
 @endsection

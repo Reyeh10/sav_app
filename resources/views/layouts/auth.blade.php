@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+
 <head>
-    <title>@yield('title')</title>
-    <link rel="stylesheet" href="{{ asset('admintemplate/assets/css/style.css') }}">
+    @include('layout.partials.head')
+    <title>@yield('title') | STCD Motors</title>
 </head>
+
 <body class="account-page">
 
     @yield('content')

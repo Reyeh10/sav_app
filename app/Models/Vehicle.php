@@ -14,15 +14,20 @@ class Vehicle extends Model
         'plate_number',
         'brand',
         'model',
+        'model_year',
         'image',
         'color_exterior',
         'color_interior',
-        'year',
+       // 'year',
+        'engine',
+        'configuration',
+        'engine_number',
         'arrival_date',
         'mileage',
         'status',
         'comment',
-        'sold_price'
+        'sold_price',
+        'sold_at'
     ];
 
     /*

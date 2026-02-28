@@ -2,8 +2,8 @@
 
 @section('content')
 
-<div class="page-wrapper">
-<div class="content">
+<!--div class="page-wrapper">
+<div class="content"-->
 
 <h3>Ajouter un utilisateur</h3>
 
@@ -57,7 +57,7 @@ Créer utilisateur
 </div>
 </div>
 
-</div>
-</div>
+<!--/div>
+</div-->
 
 @endsection

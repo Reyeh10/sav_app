@@ -62,25 +62,27 @@
                     @if(auth()->user()->role === 'admin')
 
                         <li>
-                            <a href="{{ route('dashboard.admindashboard') }}">
-                                <i class="ti ti-smart-home"></i>
-                                <span>Dashboard</span>
-                                <!--span class="badge bg-danger ms-2">Hot</span-->
-                                <span class="badge badge-danger fs-10 fw-medium text-white p-1">Hot</span>
+                            <a href="{{ route(auth()->user()->role === 'admin' ? 'dashboard.admindashboard' : 'dashboard') }}"
+                            class="sidebar-link dashboard-link">
+
+                                <i class="ti ti-smart-home dashboard-icon"></i>
+                                <span class="dashboard-text">Dashboard</span>
+
                             </a>
                         </li>
-
                         @else
 
                         <li>
-                            <a href="{{ route('dashboard') }}">
-                                <i class="ti ti-smart-home"></i>
-                                <span>Dashboard</span>
-                                <span class="badge bg-danger ms-2">Hot</span>
+                            <a href="{{ route('dashboard') }}"
+                            class="sidebar-link d-flex align-items-center">
+
+                                <i class="ti ti-smart-home sidebar-icon"></i>
+                                <span class="sidebar-text">Dashboard</span>
+
                             </a>
                         </li>
 
-                    @endif
+                        @endif
 
 
                         <!-- ============================= -->
@@ -199,13 +201,13 @@
                                 </a>
                             </li>
 
-                            <li>
-                                <a href="{{ route('customers.create') }}"
-                                class="{{ request()->routeIs('customers.create') ? 'active' : '' }}">
+                            <!--li>
+                                <a href="{ { route('customers.create') }}"
+                                class="{ { request()->routeIs('customers.create') ? 'active' : '' }}">
                                     <i class="ti ti-user-plus me-2 text-primary"></i>
                                     Ajouter client
                                 </a>
-                            </li>
+                            </li-->
 
                         @endif
                             <!-- ================================================= -->

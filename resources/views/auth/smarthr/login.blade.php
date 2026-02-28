@@ -1,126 +1,139 @@
-<?php $page = 'login-3'; ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion – STCD Motors</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-@extends('layout.mainlayout')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-@section('content')
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: url('{{ asset("images/GWM.jpg") }}') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+            position: relative;
+        }
 
-<div class="login-wrapper d-flex align-items-center justify-content-center">
+        /* Overlay sombre */
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(3px);
+        }
 
-    <div class="login-container">
+        .logo-top {
+            position: absolute;
+            top: 25px;
+            right: 40px;
+            z-index: 10;
+        }
 
-        <div class="card login-card shadow-lg border-0">
+        .logo-top img {
+            height: 100px;
+        }
 
-            <div class="card-body p-4">
+        .login-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            color: #fff;
+            animation: fadeIn 0.5s ease-in-out;
+        }
 
-                <!-- ================= TITLE ================= -->
-                <div class="text-center mb-4">
-                    <h2 class="fw-bold mb-2 text-orange">
-                        Connexion
-                    </h2>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
 
-                    <p class="text-muted mb-0">
-                        Accéder au système SAV — STCD Motors
-                    </p>
-                </div>
-                 <!-- ================= Message ================= -->
-                @if($errors->has('login_error'))
-                    <div class="alert alert-danger text-center">
-                        {{ $errors->first('login_error') }}
-                    </div>
-                @endif
+        .login-card h3 {
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 10px;
+        }
 
-                <!-- ================= FORM ================= -->
-                <form method="POST" action="{{ route('login') }}">
-                    @csrf
+        .login-card p {
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 30px;
+            color: #ddd;
+        }
 
-                    <!-- EMAIL -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            Adresse Email
-                        </label>
+        .form-control {
+            border-radius: 10px;
+            border: none;
+            padding: 12px;
+        }
 
-                        <div class="input-group">
-                            <input type="email"
-                                   name="email"
-                                   class="form-control login-input"
-                                   placeholder="email@stcd.com"
-                                   required>
+        .btn-login {
+            background: linear-gradient(135deg, #16c172, #0fb65f);
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
 
-                            <span class="input-group-text">
-                                <i class="ti ti-mail"></i>
-                            </span>
-                        </div>
-                    </div>
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(22,193,114,0.5);
+        }
 
-                    <!-- PASSWORD -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            Mot de passe
-                        </label>
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #ccc;
+        }
+    </style>
+</head>
 
-                        <div class="pass-group position-relative">
-                            <input type="password"
-                                   name="password"
-                                   class="pass-input form-control login-input"
-                                   placeholder="********"
-                                   required>
+<body>
 
-                            <span class="ti toggle-password ti-eye-off password-toggle"></span>
-                        </div>
-                    </div>
+<!-- Logo en haut à droite -->
+<div class="logo-top">
+    <img src="{{ asset('images/stcd.jpg') }}" alt="STCD Logo">
+</div>
 
-                    <!-- REMEMBER + FORGOT -->
-                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+<div class="login-card">
 
-                        <div class="form-check">
-                            <input type="checkbox"
-                                   name="remember"
-                                   class="form-check-input"
-                                   id="remember_me">
+    <h3>Connexion</h3>
+    <p>Accéder au système SAV – STCD Motors</p>
 
-                            <label class="form-check-label" for="remember_me">
-                                Se souvenir de moi
-                            </label>
-                        </div>
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
 
-                        <a href="#" class="forgot-link">
-                            Mot de passe oublié ?
-                        </a>
-
-                    </div>
-
-                    <!-- SUBMIT -->
-                    <button type="submit"
-                            class="btn btn-login-green w-100 mb-3">
-                        Se connecter
-                    </button>
-
-                    <!-- REGISTER -->
-                    <!--iv class="text-center">
-                        <small class="text-muted">
-                            Pas encore de compte ?
-                            <a href="{ { route('register') }}"
-                               class="register-link fw-semibold">
-                                Créer un compte
-                            </a>
-                        </small>
-                    </div-->
-
-                </form>
-
-            </div>
-
-            <!-- FOOTER -->
-            <div class="text-center pb-3">
-                <small class="text-muted">
-                    © {{ date('Y') }} STCD Motors — SAV Application
-                </small>
-            </div>
-
+        <div class="mb-3">
+            <input type="email" name="email" class="form-control" placeholder="Adresse Email" required>
         </div>
 
+        <div class="mb-3">
+            <input type="password" name="password" class="form-control" placeholder="Mot de passe" required>
+        </div>
+
+        <button type="submit" class="btn btn-login w-100">
+            Se connecter
+        </button>
+
+    </form>
+
+    <div class="footer-text">
+        © 2026 STCD Motors — SAV Application
     </div>
 
 </div>
 
-@endsection
+</body>
+</html>
