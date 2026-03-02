@@ -119,14 +119,18 @@
                                         @endif
 
                                         {{-- Delete --}}
+
                                         @if(auth()->user()->role == 'admin')
-                                        <form action="{{ route('customers.destroy', $customer->id) }}"
-                                              method="POST"
-                                              onsubmit="return confirm('Supprimer ce client ?')">
+                                        <form id="delete-form-{{ $customer->id }}"
+                                            action="{{ route('customers.destroy', $customer->id) }}"
+                                            method="POST"
+                                            style="display:inline;">
                                             @csrf
                                             @method('DELETE')
 
-                                            <button type="submit" class="btn btn-sm btn-danger">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="confirmDelete({{ $customer->id }})">
                                                 <i class="ti ti-trash"></i>
                                             </button>
                                         </form>
@@ -136,9 +140,10 @@
                                 </td>
 
                             </tr>
-                            @empty
+                           @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted p-4">
+                                <td colspan="{{ count(['Client','Téléphone','Email','Adresse','Actions']) }}"
+                                    class="text-center text-muted p-4">
                                     Aucun client enregistré
                                 </td>
                             </tr>

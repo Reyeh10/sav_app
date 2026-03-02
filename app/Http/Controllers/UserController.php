@@ -177,4 +177,19 @@ public function saveNewPassword(Request $request)
         ->with('success','Mot de passe mis à jour');
 }
 
+
+    public function destroy(User $user)
+    {
+        // empêcher de supprimer soi-même
+        if (auth()->id() === $user->id) {
+            return redirect()->route('users.index')
+                ->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('users.index')
+            ->with('success', 'Utilisateur supprimé avec succès.');
+    }
+
 }

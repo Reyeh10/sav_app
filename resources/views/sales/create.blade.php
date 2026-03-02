@@ -61,19 +61,23 @@
 
 <div class="d-flex gap-2">
 
-<select name="customer_id"
+    <select name="customer_id"
                 id="customerSelect"
                 class="form-control customer-select">
 
-        <option value="">-- Sélectionner un client existant --</option>
+            <option value="">-- Sélectionner un client existant --</option>
 
-        @foreach($customers as $customer)
-        <option value="{{ $customer->id }}">
-            {{  $customer->name }} ({{ $customer->phone }})
-        </option>
-        @endforeach
+            @foreach($customers as $customer)
+                <option
+                    value="{{ $customer->id }}"
+                    data-type="{{ $customer->type_client }}"
+                    {{ old('customer_id') == $customer->id ? 'selected' : '' }}
+                >
+                    {{ $customer->name }} ({{ $customer->phone ?? 'N/A' }})
+                </option>
+            @endforeach
 
-</select>
+        </select>
 
 <button type="button"
         class="btn btn-success"
@@ -92,16 +96,12 @@
 {{-- ================= PRIX ================= --}}
 <div class="form-group mb-4">
 <label class="form-label">Prix de vente</label>
-<!--input type="number"
+
+<input type="text"
        name="sold_price"
        class="form-control"
-       placeholder="Montant"
-       required-->
-<input type="number"
-       name="sold_price"
-       class="form-control"
-       step="0.01"
-       min="0"
+       inputmode="decimal"
+       placeholder="9800000,99"
        value="{{ old('sold_price') }}"
        required>
 </div>
@@ -112,13 +112,21 @@
     <label class="form-label">Type de paiement *</label>
 
     <select name="payment_type"
-        class="form-select payment-select"
-        required>
+            class="form-select payment-select">
+
         <option value="">-- Sélectionner le type de paiement --</option>
+
         <option value="Cash">Cash</option>
         <option value="Bon de commande">Bon de commande</option>
         <option value="Echeance">Échéance</option>
+
     </select>
+
+    @error('payment_type')
+        <div class="text-danger mt-1">
+            {{ $message }}
+        </div>
+    @enderror
 </div>
 
 <button type="submit" class="btn btn-primary">
@@ -184,7 +192,7 @@
 <div class="modal-footer">
 <button type="button"
         class="btn btn-primary"
-        onclick="createCustomer()">
+        onclick="createCustomer(event)">
     Enregistrer
 </button>
 </div>
@@ -198,170 +206,203 @@
 
 <script>
 
-function createCustomer()
+async function createCustomer(event)
 {
-    let name = $('#customerName').val().trim();
-    let type = $('#customerType').val();
-    let phone = $('#customerPhone').val().trim();
-    let email = $('#customerEmail').val().trim();
-    let address = $('#customerAddress').val().trim();
+    if (event) event.preventDefault();
 
-    if (!name || !type || !phone || !email || !address) {
+    // 🔹 Récupération sécurisée
+    let name     = ($('#customerName').val() || '').trim();
+    let type     = ($('#customerType').val() || '').trim();
+    let phoneRaw = ($('#customerPhone').val() || '').trim();
+    let emailRaw = ($('#customerEmail').val() || '').trim();
+    let address  = ($('#customerAddress').val() || '').trim();
+
+    // 🔹 Normaliser email
+    let email = emailRaw !== '' ? emailRaw.toLowerCase() : null;
+
+    // 🔹 Nettoyage téléphone
+    let phone = phoneRaw.replace(/[\s\-()]/g, '');
+
+    if (phone.startsWith("00")) {
+        phone = "+" + phone.substring(2);
+    }
+
+    if (phone === '') {
+        phone = null;
+    }
+
+    $('#customerPhone').val(phone || '');
+
+    // ================= VALIDATIONS =================
+
+    if (!name) {
         Swal.fire({
             icon: 'error',
-            title: 'Champs obligatoires',
-            text: 'Veuillez remplir tous les champs.'
+            title: 'Nom obligatoire',
+            text: 'Veuillez saisir le nom du client.'
         });
         return;
     }
 
-    // Validation téléphone Djibouti
-    let phonePattern = /^\d{2}\s\d{2}\s\d{2}\s\d{2}$/;
-    if (!phonePattern.test(phone)) {
-        Swal.fire('Erreur', 'Format téléphone : 77 12 34 56', 'error');
-        return;
-    }
-
-    // Validation email
-    let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-        Swal.fire('Erreur', 'Email invalide.', 'error');
-        return;
-    }
-
-    fetch("{{ route('customers.quickStore') }}", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json", // ✅ important pour forcer Laravel à renvoyer du JSON
-        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-    },
-    body: JSON.stringify({
-        name: name,
-        type_client: type,
-        phone: phone,
-        email: email,
-        address: address
-    })
-})
-.then(async (response) => {
-
-    const contentType = response.headers.get("content-type") || "";
-    const isJson = contentType.includes("application/json");
-    const data = isJson ? await response.json() : null;
-
-    // ✅ 419 = CSRF / session expirée
-    if (response.status === 419) {
+    if (!type) {
         Swal.fire({
-            icon: "warning",
-            title: "Session expirée",
-            text: "Veuillez actualiser la page puis réessayer."
+            icon: 'error',
+            title: 'Type obligatoire',
+            text: 'Veuillez sélectionner le type de client.'
         });
         return;
     }
 
-    // ✅ 422 = validation
-    if (response.status === 422 && data && data.errors) {
-
-        // doublon nom/email
-        if (data.errors.name || data.errors.email) {
+    if (phone !== null) {
+        let phonePattern = /^\+[1-9]\d{1,14}$/;
+        if (!phonePattern.test(phone)) {
             Swal.fire({
-                icon: "error",
-                title: "Client déjà existant",
-                text: "Le nom ou l’email existe déjà."
+                icon: 'error',
+                title: 'Téléphone invalide',
+                text: 'Format international requis. Exemple : +25377123456'
+            });
+            return;
+        }
+    }
+
+    if (email !== null) {
+        let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Email invalide',
+                text: 'Veuillez entrer un email valide.'
+            });
+            return;
+        }
+    }
+
+    // 🔒 Bloquer bouton pour éviter double clic
+    const btn = event?.target;
+    if (btn) btn.disabled = true;
+
+    try {
+
+        const response = await fetch("{{ route('customers.quickStore') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({
+                name: name,
+                type_client: type,
+                phone: phone,
+                email: email,
+                address: address || null
+            })
+        });
+
+        const contentType = response.headers.get("content-type") || "";
+        const isJson = contentType.includes("application/json");
+        const data = isJson ? await response.json() : null;
+
+        // Session expirée
+        if (response.status === 419) {
+            Swal.fire({
+                icon: "warning",
+                title: "Session expirée",
+                text: "Veuillez actualiser la page puis réessayer."
             });
             return;
         }
 
-        // autres validations
-        const messages = Object.values(data.errors).flat().join("<br>");
+        // Validation Laravel
+        if (response.status === 422 && data?.errors) {
+
+                const errors = data.errors;
+
+                let message = '';
+
+                // 🔥 Priorité au nom
+                if (errors.name) {
+                    message = errors.name[0];
+                }
+                else if (errors.email) {
+                    message = errors.email[0];
+                }
+                else if (errors.phone) {
+                    message = errors.phone[0];
+                }
+                else if (errors.type_client) {
+                    message = errors.type_client[0];
+                }
+                else {
+                    message = Object.values(errors)[0][0];
+                }
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Erreur de validation",
+                    text: "Ce nom ou cet email existe déjà."
+                });
+
+                return;
+            }
+        // ================= SUCCÈS =================
+
+        if (data?.success) {
+
+            const customer = data.customer;
+            const select = document.getElementById("customerSelect");
+
+            if (select) {
+                const option = new Option(
+                    customer.name + (customer.phone ? " (" + customer.phone + ")" : ""),
+                    customer.id,
+                    true,
+                    true
+                );
+
+                select.add(option);
+                select.value = customer.id;
+            }
+
+            const saleType = document.getElementById("saleTypeClient");
+            if (saleType) {
+                saleType.value = customer.type_client;
+            }
+
+            Swal.fire({
+                icon: "success",
+                title: "Client créé avec succès",
+                timer: 1200,
+                showConfirmButton: false
+            });
+
+            const modalEl = document.getElementById("createCustomerModal");
+            if (modalEl) {
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                modalInstance?.hide();
+            }
+
+            // Reset champs
+            $("#customerName").val("");
+            $("#customerType").val("");
+            $("#customerPhone").val("");
+            $("#customerEmail").val("");
+            $("#customerAddress").val("");
+        }
+
+    } catch (error) {
+
         Swal.fire({
             icon: "error",
-            title: "Erreur de validation",
-            html: messages
-        });
-        return;
-    }
-
-    // ✅ autres erreurs (500, 404, etc.)
-    if (!response.ok) {
-        Swal.fire({
-            icon: "error",
-            title: "Erreur",
-            text: "Impossible de créer le client. Veuillez réessayer."
-        });
-        return;
-    }
-
-    // ✅ succès
-    if (data && data.success) {
-        const customer = data.customer;
-
-        const select = document.getElementById("customerSelect");
-        const option = new Option(
-            customer.name + " (" + customer.phone + ")",
-            customer.id,
-            true,
-            true
-        );
-
-        select.add(option);
-        select.value = customer.id;
-
-        document.getElementById("saleTypeClient").value = customer.type_client;
-
-        Swal.fire({
-            icon: "success",
-            title: "Client créé",
-            timer: 1200,
-            showConfirmButton: false
+            title: "Erreur réseau",
+            text: "Impossible de contacter le serveur."
         });
 
-        bootstrap.Modal.getInstance(document.getElementById("createCustomerModal")).hide();
+    } finally {
 
-        $("#customerName").val("");
-        $("#customerType").val(null).trigger("change");
-        $("#customerPhone").val("");
-        $("#customerEmail").val("");
-        $("#customerAddress").val("");
-        return;
+        if (btn) btn.disabled = false;
     }
-
-    // fallback si format inattendu
-    Swal.fire({
-        icon: "error",
-        title: "Erreur",
-        text: "Réponse inattendue du serveur."
-    });
-
-})
-.catch(() => {
-    // ✅ si vraiment erreur réseau (serveur arrêté, etc.)
-    Swal.fire({
-        icon: "error",
-        title: "Erreur réseau",
-        text: "Impossible de contacter le serveur."
-    });
-});
-
 }
-
-// Auto format téléphone Djibouti
-document.getElementById('customerPhone').addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    value = value.substring(0, 8);
-    let formatted = value.replace(/(\d{2})(?=\d)/g, '$1 ');
-    e.target.value = formatted.trim();
-});
-
-
-// Auto format téléphone Djibouti
-document.getElementById('customerPhone').addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    value = value.substring(0, 8);
-    let formatted = value.replace(/(\d{2})(?=\d)/g, '$1 ');
-    e.target.value = formatted.trim();
-});
 
 </script>
 

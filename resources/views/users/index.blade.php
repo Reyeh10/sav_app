@@ -84,6 +84,22 @@
             Modifier
         </a>
 
+       @if(auth()->user()->role == 'admin')
+            <form id="delete-user-{{ $user->id }}"
+                action="{{ route('users.destroy', $user->id) }}"
+                method="POST"
+                style="display:inline;">
+                @csrf
+                @method('DELETE')
+
+                <button type="button"
+                        class="btn btn-sm btn-danger"
+                        onclick="confirmUserDelete({{ $user->id }})">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </form>
+        @endif
+
     </td>
 
 </tr>

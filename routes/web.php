@@ -8,6 +8,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\VendorDashboardController;
+use App\Http\Controllers\LogistiqueDashboardController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -61,13 +62,25 @@ Route::get('/dashboard', function () {
 
     return match ($role) {
         'admin'      => redirect()->route('dashboard.admindashboard'),
-        'logistique' => redirect()->route('vehicles.index'),
+        'logistique' => redirect()->route('dashboard.logistique'),
         'mecanicien' => redirect()->route('vehicles.index'),
         'vendeur'    => redirect()->route('dashboard.vendor'),
         default      => redirect()->route('login'),
     };
 
 })->middleware(['auth','nocache'])->name('dashboard');
+
+/*
+|--------------------------------------------------------------------------
+| LOGISTIQUE DASHBOARD
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth','nocache','role:logistique'])->group(function () {
+
+    Route::get('/dashboard/logistique', [LogistiqueDashboardController::class, 'index'])
+        ->name('dashboard.logistique');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -235,5 +248,5 @@ Route::middleware(['auth','nocache','role:admin,vendeur'])->group(function () {
 Route::middleware(['auth','nocache','role:admin'])->group(function () {
 
     Route::resource('users', UserController::class)
-        ->only(['index','create','store','edit','update']);
+        ->only(['index','create','store','edit','update','destroy']);
 });

@@ -97,7 +97,7 @@ class="form-control"
 
 {{-- ================= ENGINE ================= --}}
 <div class="col-md-6 mb-3">
-<label class="form-label">Engine</label>
+<label class="form-label">Energy</label>
 <select name="engine" class="form-control"
 @if($role === 'mecanicien' || $role === 'vendeur') disabled @endif>
 <option value="">-- Select --</option>
@@ -187,7 +187,7 @@ rows="3"
 <option value="Disponible" {{ $vehicle->status == 'Disponible' ? 'selected' : '' }}>Disponible</option>
 <option value="En réparation" {{ $vehicle->status == 'En réparation' ? 'selected' : '' }}>En réparation</option>
 <option value="En attente" {{ $vehicle->status == 'En attente' ? 'selected' : '' }}>En attente</option>
-<option value="Vendu" {{ $vehicle->status == 'Vendu' ? 'selected' : '' }}>Vendu</option>
+<!--option value="Vendu" { { $vehicle->status == 'Vendu' ? 'selected' : '' }}>Vendu</option-->
 </select>
 </div>
 @elseif($role === 'logistique')

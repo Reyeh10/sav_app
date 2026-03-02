@@ -225,7 +225,7 @@ $(document).ready(function () {
 @auth
 <script>
 let timeout;
-let maxInactivity = 5 * 60 * 1000; // 5 minutes
+let maxInactivity = 15 * 60 * 1000; // 5 minutes
 function resetTimer() {
     clearTimeout(timeout);
     timeout = setTimeout(showTimeoutPopup, maxInactivity);
@@ -313,6 +313,90 @@ function confirmDelete(id)
 }
 </script>
 
+    <script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Supprimer ce client ?',
+            text: "Cette action est irréversible !",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler',
+            reverseButtons: true,
+            backdrop: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+    </script>
+
+    <script>
+        function confirmUserDelete(id) {
+            Swal.fire({
+                title: 'Supprimer cet utilisateur ?',
+                html: '<b>Cette action est irréversible !</b>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="ti ti-trash"></i> Oui, supprimer',
+                cancelButtonText: 'Annuler',
+                reverseButtons: true,
+                backdrop: true,
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'rounded-4 shadow-lg'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-user-' + id).submit();
+                }
+            });
+        }
+        </script>
+
+        <script>
+$(document).ready(function () {
+
+    $('.datatable').DataTable().destroy();
+
+    $('.datatable').DataTable({
+        language: {
+            lengthMenu: "Afficher _MENU_ lignes",
+            info: "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+            infoEmpty: "Affichage de 0 à 0 sur 0 entrées",
+            infoFiltered: "(filtré de _MAX_ entrées au total)",
+            zeroRecords: "Aucun résultat trouvé",
+            search: "Rechercher :",
+            paginate: {
+                first: "Premier",
+                last: "Dernier",
+                next: "Suivant",
+                previous: "Précédent"
+            }
+        }
+    });
+
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const input = document.getElementById('password');
+    const btn   = document.getElementById('togglePassword');
+
+    if (!input || !btn) return;
+
+    btn.addEventListener('click', function () {
+        input.type = input.type === 'password' ? 'text' : 'password';
+    });
+
+});
+</script>
 @stack('scripts')
 </body>
 </html>

@@ -95,9 +95,9 @@
     @enderror
 </div>
 
-{{-- ================= ENGINE ================= --}}
+{{-- ================= Energy ================= --}}
 <div class="col-md-6 mb-3">
-    <label class="form-label">Engine</label>
+    <label class="form-label">Energy</label>
     <select name="engine" class="form-control">
         <option value="">-- Select --</option>
         <option value="Essence" {{ old('engine')=='Essence'?'selected':'' }}>Essence</option>

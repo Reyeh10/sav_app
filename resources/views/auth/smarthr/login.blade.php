@@ -7,6 +7,9 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- ✅ Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <style>
         body {
             margin: 0;
@@ -97,6 +100,50 @@
             font-size: 12px;
             color: #ccc;
         }
+
+        /* ================== PASSWORD TOGGLE (PROPRE) ================== */
+        .password-wrap{
+            position: relative;
+        }
+
+        .password-wrap .form-control{
+            padding-right: 52px;
+        }
+
+        .password-toggle{
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            padding: 0;
+        }
+
+        .password-toggle:hover{
+            background: rgba(255,255,255,0.20);
+        }
+
+        .password-toggle i,
+        .password-toggle span{
+            font-size: 18px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        /* Fallback emoji caché par défaut */
+        #toggleFallback{
+            display: none;
+        }
     </style>
 </head>
 
@@ -119,9 +166,28 @@
             <input type="email" name="email" class="form-control" placeholder="Adresse Email" required>
         </div>
 
-        <div class="mb-3">
-            <input type="password" name="password" class="form-control" placeholder="Mot de passe" required>
-        </div>
+        <!-- ✅ Champ mot de passe + bouton œil -->
+            <div class="mb-3 position-relative">
+                <input type="password"
+                    id="password"
+                    name="password"
+                    class="form-control pe-5"
+                    placeholder="Mot de passe"
+                    required>
+
+                <button type="button"
+                        id="togglePassword"
+                        aria-label="Afficher/Masquer le mot de passe"
+                        style="position:absolute;
+                            right:12px;
+                            top:50%;
+                            transform:translateY(-50%);
+                            background:transparent;
+                            border:none;
+                            cursor:pointer;">
+                    <i class="bi bi-eye" id="toggleIcon"></i>
+                </button>
+            </div>
 
         <button type="submit" class="btn btn-login w-100">
             Se connecter
@@ -134,6 +200,30 @@
     </div>
 
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const passwordInput = document.getElementById("password");
+    const toggleBtn = document.getElementById("togglePassword");
+    const icon = document.getElementById("toggleIcon");
+
+    toggleBtn.addEventListener("click", function () {
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        } else {
+            passwordInput.type = "password";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        }
+
+    });
+
+});
+</script>
 
 </body>
 </html>

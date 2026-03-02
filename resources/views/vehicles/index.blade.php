@@ -23,6 +23,11 @@
 </div>
 @endif
 
+@if(session('error'))
+<div class="alert alert-danger">
+    {{ session('error') }}
+</div>
+@endif
 <!-- ================= HEADER ================= -->
 <div class="card shadow-sm border-0 mb-4">
 <div class="card-body">
@@ -103,11 +108,11 @@ Importer Excel
 <th>Color exterior</th>
 <th>Color interior</th>
 <th>Model year</th>
-<th>Engine</th>
+<th>Energy</th>
 <th>Configuration</th>
 <th>Engine Number</th>
 <th>Arrival date</th>
-<th>Sale price</th>
+<th>Mileage</th>
 <th>Status</th>
 <th>Comment</th>
 <th>Actions</th>
@@ -140,7 +145,7 @@ data-bs-target="#img{{ $vehicle->id }}">
 
 <!-- ================= NOUVEAUX CHAMPS AJOUTÉS (SANS SUPPRIMER L’ANCIEN CODE) ================= -->
 <td>
-    {{ $vehicle->engine ?? '-' }}
+    {{ $vehicle->engine  ?? '-' }}
 </td>
 
 <td>
@@ -158,14 +163,19 @@ data-bs-target="#img{{ $vehicle->id }}">
 : '-' }}
 </td>
 
-<!-- PRIX -->
+<!-- MILEAGE -->
 <td>
-@if(isset($vehicle->sale) && $vehicle->sale && $vehicle->sale->sold_price !== null)
-    {{ number_format($vehicle->sale->sold_price, 2, ',', ' ') }} FDJ
-@else
-    -
-@endif
+    {{ $vehicle->mileage ?? '-' }}
 </td>
+
+<!-- PRIX -->
+<!--td>
+    @ if(isset($vehicle->sale) && $vehicle->sale && $vehicle->sale->sold_price !== null)
+        { { number_format($vehicle->sale->sold_price, 2, ',', ' ') }} FDJ
+    @ else
+    -
+@ endif
+</td-->
 
 <!-- STATUS -->
 <td>

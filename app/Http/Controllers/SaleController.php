@@ -8,7 +8,7 @@ use App\Models\Vehicle;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+//use Illuminate\Support\Facades\Log;
 
 class SaleController extends Controller
 {
@@ -41,90 +41,69 @@ public function create()
 /* ===============================
    ENREGISTRER VENTE
 =============================== */
-public function store(Request $request)
+    public function store(Request $request)
 {
+    // ✅ 1. VALIDATION AVANT TOUT
+    $validated = $request->validate([
+        'vehicle_id'   => 'required|exists:vehicles,id',
+        'customer_id'  => 'required|exists:customers,id',
+        'type_client'  => 'required|in:Particulier,Gouvernement,Para-public,Privee',
+        'payment_type' => 'required|in:Cash,Bon de commande,Echeance',
+        'sold_price'   => 'required'
+    ]);
+
+    // 🔥 CONVERSION PRIX (on garde ton code)
+    $price = str_replace(' ', '', $validated['sold_price']);
+    $price = str_replace(',', '.', $price);
+
+    // ✅ Vérification supplémentaire (sécurité)
+    if (!is_numeric($price)) {
+        return back()->withErrors([
+            'sold_price' => 'Le prix doit être un nombre valide.'
+        ])->withInput();
+    }
+
+    DB::beginTransaction();
+
     try {
 
-        Log::info('SALE REQUEST DATA', $request->all());
-
-        $validated = $request->validate([
-            'vehicle_id'  => 'required|exists:vehicles,id',
-            'customer_id' => 'nullable|exists:customers,id',
-            'type_client' => 'required|in:Particulier,Gouvernement,Para-public,Privee',
-            'payment_type' => 'required|in:Cash,Bon de commande,Echeance',
-            'customer_name' => 'nullable|string|max:255',
-            'sold_price'  => 'required'
-        ]);
-
-        /* ===== CONVERT PRIX ===== */
-        $price = floatval(str_replace(',', '', $request->sold_price));
-
-        if ($price <= 0) {
-            return back()->with('error', 'Le prix doit être supérieur à 0');
-        }
-
-        DB::beginTransaction();
-
-        /* ===== VEHICLE ===== */
         $vehicle = Vehicle::findOrFail($validated['vehicle_id']);
 
-        // 🔥 CORRECTION MAJEURE ICI
+        // ✅ Sécurité supplémentaire
         if ($vehicle->status !== 'Disponible') {
-            return back()->with('error', 'Cette voiture n’est plus disponible.');
+            DB::rollBack();
+            return back()->withErrors([
+                'vehicle_id' => 'Voiture non disponible.'
+            ])->withInput();
         }
 
-        /* ===== GESTION CLIENT ===== */
-        $customerId = $validated['customer_id'];
-
-        if (!$customerId && $request->filled('customer_name')) {
-
-            $customer = Customer::where('name', $request->customer_name)->first();
-
-            if (!$customer) {
-                $customer = Customer::create([
-                    'name'        => $request->customer_name,
-                    'type_client' => $validated['type_client'],
-                ]);
-            }
-
-            $customerId = $customer->id;
-        }
-
-        if (!$customerId) {
-            return back()->with('error', 'Veuillez sélectionner ou saisir un client.');
-        }
-
-        /* ===== CREATE SALE ===== */
-        $sale = Sale::create([
+        // ✅ Création vente (ton code inchangé)
+        Sale::create([
             'vehicle_id'   => $vehicle->id,
-            'customer_id'  => $customerId,
+            'customer_id'  => $validated['customer_id'],
             'sold_by'      => auth()->id(),
             'sold_price'   => $price,
             'payment_type' => $validated['payment_type'],
             'sold_date'    => now(),
         ]);
 
-        /* ===== UPDATE VEHICLE ===== */
+        // ✅ Mise à jour véhicule
         $vehicle->update([
-            'status'     => 'Vendu',   // 🔥 cohérent avec ton système
-            'sold_price' => $price,
-            'sold_at'    => now(),
+            'status' => 'Vendu'
         ]);
 
         DB::commit();
 
-        return redirect()
-            ->route('vehicles.sold')
-            ->with('success', 'Voiture vendue avec succès.');
+        return redirect()->route('vehicles.sold')
+            ->with('success', 'Voiture vendue.');
 
     } catch (\Exception $e) {
 
         DB::rollBack();
 
-        Log::error('SALE STORE ERROR => ' . $e->getMessage());
-        Log::error('SALE STORE TRACE => ' . $e->getTraceAsString());
-
-        return back()->with('error', 'Erreur lors de l’enregistrement.');
+        return back()
+            ->with('error', 'Erreur lors de l\'enregistrement.')
+            ->withInput();
     }
 }
 

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vehicle;
-use Illuminate\Http\Request;
 //use App\Imports\VehiclesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class VehicleController extends Controller
 {
@@ -63,52 +65,52 @@ public function create()
 =============================== */
 public function store(Request $request)
 {
-    $role = auth()->user()->role;
-    $allowedStatus = ['Disponible','En réparation','En attente','Vendu'];
-    if ($role === 'admin') {
-    $data['status'] = in_array($request->status, $allowedStatus)
-        ? $request->status
-        : 'En attente';
-} else {
-    // Logistique ne choisit pas
-    $data['status'] = 'En attente';
-}
-
-    $request->validate([
-        'vin'   => 'required|unique:vehicles,vin',
-        'brand' => 'required|string|max:100',
-        'model' => 'required|string|max:100',
-        'model_year' => 'nullable|integer|min:1900|max:' . date('Y'),
-        'engine' => 'nullable|in:Essence,Diesel,HEV,PHEV,Electrique',
-        'configuration' => 'nullable|in:Basic,Medium Option,Full Option',
-        'engine_number' => 'nullable|string|max:100',
-        'mileage' => 'nullable|integer|min:0',
-        'plate_number' => 'nullable|string|max:100',
-        'color_exterior' => 'nullable|string|max:50',
-        'color_interior' => 'nullable|string|max:50',
-        'arrival_date' => 'nullable|date',
-        'comment' => 'nullable|string|max:1000',
-        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        'status' => 'nullable|string'
-    ]);
-
-    $data = $request->all();
-
-    $data['mileage'] = $request->mileage ?? 0;
-    $data['model_year'] = $request->model_year ?? null;
-
-    $data['status'] = in_array($request->status, $allowedStatus)
-        ? $request->status
-        : 'En attente';
-
-    if ($role === 'admin' && $request->hasFile('image')) {
-        $data['image'] = $request->file('image')->store('vehicles', 'public');
+        $role = auth()->user()->role;
+        $allowedStatus = ['Disponible','En réparation','En attente','Vendu'];
+        if ($role === 'admin') {
+        $data['status'] = in_array($request->status, $allowedStatus)
+            ? $request->status
+            : 'En attente';
+    } else {
+        // Logistique ne choisit pas
+        $data['status'] = 'En attente';
     }
 
-    Vehicle::create($data);
+        $request->validate([
+            'vin'   => 'required|unique:vehicles,vin',
+            'brand' => 'required|string|max:100',
+            'model' => 'required|string|max:100',
+            'model_year' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'engine' => 'nullable|in:Essence,Diesel,HEV,PHEV,Electrique',
+            'configuration' => 'nullable|in:Basic,Medium Option,Full Option',
+            'engine_number' => 'nullable|string|max:100',
+            'mileage' => 'nullable|integer|min:0',
+            'plate_number' => 'nullable|string|max:100',
+            'color_exterior' => 'nullable|string|max:50',
+            'color_interior' => 'nullable|string|max:50',
+            'arrival_date' => 'nullable|date',
+            'comment' => 'nullable|string|max:1000',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'status' => 'nullable|string'
+        ]);
 
-    return redirect()->route('vehicles.index')
-        ->with('success','Véhicule ajouté ✅');
+        $data = $request->all();
+
+        $data['mileage'] = $request->mileage ?? 0;
+        $data['model_year'] = $request->model_year ?? null;
+
+        $data['status'] = in_array($request->status, $allowedStatus)
+            ? $request->status
+            : 'En attente';
+
+       if (in_array($role, ['admin', 'mecanicien']) && $request->hasFile('image')) {
+    $data['image'] = $request->file('image')->store('vehicles', 'public');
+}
+
+        Vehicle::create($data);
+
+        return redirect()->route('vehicles.index')
+            ->with('success','Véhicule ajouté ✅');
 }
 
 /* ===============================
@@ -144,8 +146,14 @@ public function update(Request $request, Vehicle $vehicle)
         }
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('vehicles', 'public');
-        }
+
+    // Supprimer ancienne image
+    if ($vehicle->image) {
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($vehicle->image);
+    }
+
+    $data['image'] = $request->file('image')->store('vehicles', 'public');
+}
 
         $vehicle->update($data);
     }
@@ -319,31 +327,115 @@ public function importExcel(Request $request)
     ]);
 
     $file = $request->file('file');
-
     $data = Excel::toArray([], $file);
 
-    foreach ($data[0] as $index => $row) {
-
-        if ($index == 0) continue; // ignorer header
-
-        Vehicle::create([
-            'vin' => $row[0] ?? null,
-            'brand' => $row[1] ?? null,
-            'model' => $row[2] ?? null,
-            'model_year' => $row[3] ?? null,
-            'engine' => $row[4] ?? null,
-            'configuration' => $row[5] ?? null,
-            'engine_number' => $row[6] ?? null,
-            'color_exterior' => $row[7] ?? null,
-            'color_interior' => $row[8] ?? null,
-            'arrival_date' => $row[9] ?? null,
-            'mileage' => $row[10] ?? 0,
-            'comment' => $row[11] ?? null,
-            'status' => $row[12] ?? 'En attente',
-        ]);
+    if (empty($data) || empty($data[0])) {
+        return back()->with('error', 'Fichier vide ou invalide.');
     }
 
-    return back()->with('success', 'Import réussi !');
+    DB::beginTransaction();
+
+    try {
+
+        foreach ($data[0] as $index => $row) {
+
+            // Ignorer header
+            if ($index == 0) continue;
+
+            // Ignorer lignes complètement vides
+            if (empty(array_filter($row))) {
+                continue;
+            }
+
+            // ===============================
+            // Récupération sécurisée des champs
+            // ===============================
+            $vin           = trim($row[0] ?? '');
+            $brand         = trim($row[1] ?? '');
+            $model         = trim($row[2] ?? '');
+            $modelYear     = $row[3] ?? null;
+            $engine        = trim($row[4] ?? '');
+            $configuration = trim($row[5] ?? '');
+            $engineNumber  = trim($row[6] ?? '');
+            $colorExterior = trim($row[7] ?? '');
+            $colorInterior = trim($row[8] ?? '');
+            $arrivalRaw    = $row[9] ?? null;
+            $mileage       = is_numeric($row[10] ?? null) ? $row[10] : 0;
+            $comment       = $row[11] ?? null;
+            $status        = $row[12] ?? 'En attente';
+
+            // ===============================
+            // CHAMPS OBLIGATOIRES
+            // ===============================
+            if (
+                empty($vin) ||
+                empty($brand) ||
+                empty($model) ||
+                empty($engine) ||
+                empty($configuration) ||
+                empty($colorExterior) ||
+                empty($colorInterior)
+            ) {
+                DB::rollBack();
+                return back()->with(
+                    'error',
+                    "Erreur ligne " . ($index + 1) . " : Champs obligatoires manquants."
+                );
+            }
+
+            // ===============================
+            // VIN UNIQUE
+            // ===============================
+            if (Vehicle::where('vin', $vin)->exists()) {
+                DB::rollBack();
+                return back()->with(
+                    'error',
+                    "Erreur ligne " . ($index + 1) . " : VIN déjà existant."
+                );
+            }
+
+            // ===============================
+            // Gestion sécurisée de la date
+            // ===============================
+            $arrivalDate = null;
+
+            if (!empty($arrivalRaw) && strtotime($arrivalRaw)) {
+                $arrivalDate = Carbon::parse($arrivalRaw);
+            }
+
+            // ===============================
+            // Création véhicule
+            // ===============================
+            Vehicle::create([
+                'vin' => $vin,
+                'brand' => $brand,
+                'model' => $model,
+                'model_year' => $modelYear,
+                'engine' => $engine,
+                'configuration' => $configuration,
+                'engine_number' => $engineNumber,
+                'color_exterior' => $colorExterior,
+                'color_interior' => $colorInterior,
+                'arrival_date' => $arrivalDate,
+                'mileage' => $mileage,
+                'comment' => $comment,
+                'status' => $status,
+            ]);
+        }
+
+        DB::commit();
+
+        return back()->with('success', 'Import réussi !');
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        return back()->with(
+            'error',
+            'Erreur lors de l’import : ' . $e->getMessage()
+        );
+    }
 }
 /* ===============================
    DELETE (ADMIN SEULEMENT)
