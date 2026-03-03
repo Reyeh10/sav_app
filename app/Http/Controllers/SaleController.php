@@ -44,17 +44,35 @@ public function create()
     public function store(Request $request)
 {
     // ✅ 1. VALIDATION AVANT TOUT
+    // 🔥 Nettoyage AVANT validation
+    $cleanPrice = str_replace([' ', ','], ['', '.'], $request->sold_price);
+
+    if (!is_numeric($cleanPrice)) {
+        return back()->withErrors([
+            'sold_price' => 'Le prix doit être un nombre valide.'
+        ])->withInput();
+    }
+
+    $price = floatval($cleanPrice);
+
+    // 🔥 Bloquer les montants trop grands AVANT DB
+    if ($price > 99999999.99) {
+        return back()->withErrors([
+            'sold_price' => 'Le montant est trop élevé.'
+        ])->withInput();
+    }
+
+    // ✅ Maintenant validation normale
     $validated = $request->validate([
         'vehicle_id'   => 'required|exists:vehicles,id',
         'customer_id'  => 'required|exists:customers,id',
         'type_client'  => 'required|in:Particulier,Gouvernement,Para-public,Privee',
         'payment_type' => 'required|in:Cash,Bon de commande,Echeance',
-        'sold_price'   => 'required'
     ]);
 
     // 🔥 CONVERSION PRIX (on garde ton code)
-    $price = str_replace(' ', '', $validated['sold_price']);
-    $price = str_replace(',', '.', $price);
+    $price = str_replace([' ', ','], ['', '.'], $validated['sold_price']);
+    $price = floatval($price);
 
     // ✅ Vérification supplémentaire (sécurité)
     if (!is_numeric($price)) {

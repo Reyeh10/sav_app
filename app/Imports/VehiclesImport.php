@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Exception;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use PhpOffice\PhpSpreadsheet\Shared\Date; // ✅ Ajout pour gérer dates Excel numériques
 
 class VehiclesImport implements ToModel, WithHeadingRow
 {
@@ -42,7 +43,7 @@ class VehiclesImport implements ToModel, WithHeadingRow
 
         /*
         =====================================
-        DATE ARRIVEE
+        DATE ARRIVEE (OBLIGATOIRE + SECURISEE)
         =====================================
         */
         $arrivalDate = null;
@@ -52,12 +53,28 @@ class VehiclesImport implements ToModel, WithHeadingRow
             ?? $row['date arrivée']
             ?? null;
 
-        if (!empty($arrivalRaw)) {
-            try {
+        // ✅ AJOUT : Date obligatoire
+        if (empty($arrivalRaw)) {
+            throw new Exception(
+                "Erreur Import : La date d'arrivée est obligatoire."
+            );
+        }
+
+        try {
+
+            // ✅ Gérer dates Excel numériques
+            if (is_numeric($arrivalRaw)) {
+                $arrivalDate = Carbon::instance(
+                    Date::excelToDateTimeObject($arrivalRaw)
+                )->format('Y-m-d');
+            } else {
                 $arrivalDate = Carbon::parse($arrivalRaw)->format('Y-m-d');
-            } catch (\Exception $e) {
-                $arrivalDate = null;
             }
+
+        } catch (\Exception $e) {
+            throw new Exception(
+                "Erreur Import : Format de date d'arrivée invalide."
+            );
         }
 
         /*
@@ -81,7 +98,6 @@ class VehiclesImport implements ToModel, WithHeadingRow
             'Disponible',
             'En réparation',
             'En attente',
-            'Vendu'
         ];
 
         $rawStatus = $row['status']
@@ -90,7 +106,6 @@ class VehiclesImport implements ToModel, WithHeadingRow
 
         $rawStatus = trim($rawStatus);
 
-        // Si statut vide ou incorrect → valeur par défaut
         if (!in_array($rawStatus, $allowedStatus)) {
             $rawStatus = 'En attente';
         }
@@ -122,7 +137,6 @@ class VehiclesImport implements ToModel, WithHeadingRow
                 ?? $row['kilometrage']
                 ?? 0,
 
-            // ✅ STATUS sécurisé
             'status' => $rawStatus,
         ]);
     }

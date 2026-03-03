@@ -132,7 +132,7 @@
                             </li>
                         @endif
                         {{-- ================= VOITURES VENDUES ================= --}}
-                        @if(auth()->user()->role == 'vendeur' || auth()->user()->role == 'admin')
+                        @if(auth()->user()->role == 'vendeur'  || auth()->user()->role == 'mecanicien'|| auth()->user()->role == 'admin')
 
                         <li>
                             <a href="{{ route('vehicles.sold') }}"

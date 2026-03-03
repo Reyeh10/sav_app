@@ -64,7 +64,7 @@
 
                 {{-- ================= TABLE ================= --}}
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle">
+                   <table class="table table-hover align-middle text-center">
 
                         <thead class="table-light">
                             <tr>
@@ -101,8 +101,19 @@
                                 </td>
                                 {{-- DATE DE VENTE --}}
                                 <td>
-                                    @if($vehicle->sold_at)
-                                        {{ \Carbon\Carbon::parse($vehicle->sold_at)->format('d/m/Y') }}
+                                    @php
+                                        $soldDate = optional($vehicle->sale)->sold_date;
+                                    @endphp
+
+                                    @if($soldDate)
+                                        @if(\Carbon\Carbon::parse($soldDate)->isToday())
+                                            <span class="badge rounded-pill px-3 py-1"
+                                                style="background: linear-gradient(45deg, #ff4d4d, #ff0000); font-size: 11px;">
+                                                ✨ Nouveau
+                                            </span>
+                                        @endif
+
+                                        {{ \Carbon\Carbon::parse($soldDate)->format('d-m-Y') }}
                                     @else
                                         -
                                     @endif
@@ -138,6 +149,15 @@
                                         @endif
                                     @endauth
 
+                                {{-- MECANICIEN : voir seulement --}}
+                                @auth
+                                @if(auth()->user()->role === 'mecanicien')
+                                    <a href="{{ route('vehicles.show', $vehicle->id) }}"
+                                    class="btn btn-sm btn-info">
+                                        Voir
+                                    </a>
+                                @endif
+                                @endauth
                                 </td>
                             </tr>
 

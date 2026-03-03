@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+
 
 class VehicleController extends Controller
 {
@@ -233,7 +235,11 @@ public function sold(Request $request)
         });
     }
 
-    $vehicles = $query->latest()->paginate(10);
+    //$vehicles = $query->latest()->paginate(10);
+    $vehicles = $query
+    ->with('sale')   // ✅ AJOUT IMPORTANT
+    ->latest()
+    ->paginate(10);
 
     return view('vehicles.sold', compact('vehicles'));
 }
@@ -374,7 +380,8 @@ public function importExcel(Request $request)
                 empty($engine) ||
                 empty($configuration) ||
                 empty($colorExterior) ||
-                empty($colorInterior)
+                empty($colorInterior) ||
+                empty($arrivalRaw)   // ✅ DATE OBLIGATOIRE
             ) {
                 DB::rollBack();
                 return back()->with(
@@ -395,14 +402,35 @@ public function importExcel(Request $request)
             }
 
             // ===============================
-            // Gestion sécurisée de la date
-            // ===============================
-            $arrivalDate = null;
+// Gestion obligatoire et sécurisée de la date
+// ===============================
 
-            if (!empty($arrivalRaw) && strtotime($arrivalRaw)) {
-                $arrivalDate = Carbon::parse($arrivalRaw);
-            }
+if (empty($arrivalRaw)) {
+    DB::rollBack();
+    return back()->with(
+        'error',
+        "Erreur ligne " . ($index + 1) . " : La date d'arrivée est obligatoire."
+    );
+}
 
+try {
+
+    // Si Excel envoie une date numérique
+                if (is_numeric($arrivalRaw)) {
+                    $arrivalDate = Carbon::instance(
+                       Date::excelToDateTimeObject($arrivalRaw)
+                    );
+                } else {
+                    $arrivalDate = Carbon::parse($arrivalRaw);
+                }
+
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        return back()->with(
+                            'error',
+                            "Erreur ligne " . ($index + 1) . " : Format de date invalide."
+                        );
+                    }
             // ===============================
             // Création véhicule
             // ===============================
