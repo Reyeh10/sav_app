@@ -68,6 +68,7 @@ public function create()
         'customer_id'  => 'required|exists:customers,id',
         'type_client'  => 'required|in:Particulier,Gouvernement,Para-public,Privee',
         'payment_type' => 'required|in:Cash,Bon de commande,Echeance',
+        'sold_price'   => 'required'
     ]);
 
     // 🔥 CONVERSION PRIX (on garde ton code)
