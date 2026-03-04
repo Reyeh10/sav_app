@@ -107,13 +107,15 @@
 {{-- ================= SECTION 2 ================= --}}
 <div class="dash-section-title">📈 Partie 2 — Analyse</div>
 
-<div class="row g-3">
+    <div class="row g-3">
 
-    <div class="col-lg-7">
+        <div class="col-lg-7">
         <div class="chart-card bg-white">
-            <h6 class="fw-bold mb-3">Véhicules vendus par mois</h6>
+            <!--h6 class="card-title">Ventes par modèle</h6-->
+            <h6 class="fw-bold mb-3">Ventes par modèle</h6>
+            <!--canvas id="salesByModelChart" height="100"></canvas-->
             <div class="chart-wrap">
-                <canvas id="salesChart"></canvas>
+               <canvas id="salesByModelChart" height="100"></canvas>
             </div>
         </div>
     </div>
@@ -131,7 +133,7 @@
 
 
 {{-- ================= SECTION 3 ================= --}}
-<!--div class="dash-section-title">🚗 Partie 3 — Flux des véhicules</div>
+<div class="dash-section-title">🚗 Partie 3 — Flux des véhicules</div>
 
     <div class="row g-3">
 
@@ -155,7 +157,7 @@
 
     </div>
 
-</div-->
+</div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -189,18 +191,20 @@ function cleanOptions(maxY = null){
 }
 
 // ===== BAR =====
-new Chart(document.getElementById('salesChart'), {
+const salesChart = new Chart(document.getElementById('salesChart'), {
     type: 'bar',
     data: {
-        labels: monthsFR,
+        labels: @json($salesModelLabels),
         datasets: [{
             label: 'Ventes',
-            data: salesData,
-            backgroundColor: '#28a745',
-            borderRadius: 6
+            data: @json($salesModelData),
+            backgroundColor: '#28a745'
         }]
     },
-    options: cleanOptions(10)
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
 });
 
 // ===== DONUT =====
@@ -260,4 +264,124 @@ new Chart(document.getElementById('flowChart'), {
 });
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const salesByModelCtx = document.getElementById('salesByModelChart');
+
+    if (salesByModelCtx) {
+
+        new Chart(salesByModelCtx, {
+            type: 'bar',
+            data: {
+                labels: @json($salesModelLabels),
+                datasets: [{
+                    label: 'Ventes par modèle',
+                    data: @json($salesModelData),
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 6,
+                    barThickness: 40
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+    }
+
+});
+</script>
+<script>
+
+/* ===============================
+CORRECTION GRAPHIQUES DASHBOARD
+(ancien code conservé)
+================================ */
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const monthsFR = ["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"];
+
+    const salesByMonth  = @json($salesByMonth);
+    const arrivalByMonth = @json($arrivalByMonth);
+
+    /* ===============================
+    GRAPH ARRIVALS
+    =============================== */
+
+    const arrivalCanvas = document.getElementById('arrivalChart');
+
+    if(arrivalCanvas){
+
+        new Chart(arrivalCanvas, {
+            type: 'line',
+            data: {
+                labels: monthsFR,
+                datasets: [{
+                    label: 'Arrivées',
+                    data: arrivalByMonth,
+                    borderColor: '#17a2b8',
+                    backgroundColor: 'rgba(23,162,184,0.15)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4
+                }]
+            },
+            options:{
+                responsive:true,
+                maintainAspectRatio:false
+            }
+        });
+
+    }
+
+    /* ===============================
+    GRAPH SALES PER MONTH
+    =============================== */
+
+    const salesCanvas = document.getElementById('flowChart');
+
+    if(salesCanvas){
+
+        new Chart(salesCanvas,{
+            type:'line',
+            data:{
+                labels: monthsFR,
+                datasets:[{
+                    label:'Ventes',
+                    data: salesByMonth,
+                    borderColor:'#dc3545',
+                    backgroundColor:'rgba(220,53,69,0.15)',
+                    fill:true,
+                    tension:0.4,
+                    pointRadius:4
+                }]
+            },
+            options:{
+                responsive:true,
+                maintainAspectRatio:false
+            }
+        });
+
+    }
+
+});
+</script>
+<style>
+.chart-container{
+    position: relative;
+    height: 220px;
+    width: 100%;
+}
+
+.chart-container canvas{
+    max-height:220px;
+}
+</style>
 @endsection

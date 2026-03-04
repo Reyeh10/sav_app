@@ -109,15 +109,24 @@
 </div>
 
 {{-- ================= CONFIGURATION ================= --}}
-<div class="col-md-6 mb-3">
+<!--div class="col-md-6 mb-3">
     <label class="form-label">Configuration</label>
     <select name="configuration" class="form-control">
         <option value="">-- Select --</option>
-        <option value="Basic" {{ old('configuration')=='Basic'?'selected':'' }}>Basic</option>
-        <option value="Medium Option" {{ old('configuration')=='Medium Option'?'selected':'' }}>Medium Option</option>
-        <option value="Full Option" {{ old('configuration')=='Full Option'?'selected':'' }}>Full Option</option>
+        <option value="Basic" { { old('configuration')=='Basic'?'selected':'' }}>Basic</option>
+        <option value="Medium Option" { { old('configuration')=='Medium Option'?'selected':'' }}>Medium Option</option>
+        <option value="Full Option" { { old('configuration')=='Full Option'?'selected':'' }}>Full Option</option>
     </select>
+</div-->
+<div class="col-md-6 mb-3">
+    <label class="form-label">configuration</label>
+    <input type="text"
+       name="configuration"
+       class="form-control"
+       value="{{ old('configuration') }}"
+       placeholder="Ex: Full Option, Luxury, Premium Pack">
 </div>
+
 
 {{-- ================= ENGINE NUMBER ================= --}}
 <div class="col-md-6 mb-3">

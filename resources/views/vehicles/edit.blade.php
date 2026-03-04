@@ -111,24 +111,23 @@ class="form-control"
 
 {{-- ================= CONFIGURATION ================= --}}
 <div class="col-md-6 mb-3">
-<label class="form-label">Configuration</label>
-<select name="configuration" class="form-control"
-@if($role === 'mecanicien' || $role === 'vendeur') disabled @endif>
-<option value="">-- Select --</option>
-<option value="Basic" {{ old('configuration', $vehicle->configuration)=='Basic'?'selected':'' }}>Basic</option>
-<option value="Medium Option" {{ old('configuration', $vehicle->configuration)=='Medium Option'?'selected':'' }}>Medium Option</option>
-<option value="Full Option" {{ old('configuration', $vehicle->configuration)=='Full Option'?'selected':'' }}>Full Option</option>
-</select>
-</div>
+    <label class="form-label">Configuration</label>
 
+    <input type="text"
+           name="configuration"
+           class="form-control"
+           value="{{ old('configuration', $vehicle->configuration) }}"
+           placeholder="Ex: Full Option, Luxury, Premium Pack"
+           @if($role === 'mecanicien' || $role === 'vendeur') disabled @endif>
+</div>
 {{-- ================= ENGINE NUMBER ================= --}}
 <div class="col-md-6 mb-3">
-<label class="form-label">Engine Number</label>
-<input type="text"
-name="engine_number"
-value="{{ old('engine_number', $vehicle->engine_number) }}"
-class="form-control"
-@if($role === 'mecanicien' || $role === 'vendeur') readonly @endif>
+    <label class="form-label">Engine Number</label>
+    <input type="text"
+    name="engine_number"
+    value="{{ old('engine_number', $vehicle->engine_number) }}"
+    class="form-control"
+    @if($role === 'mecanicien' || $role === 'vendeur') readonly @endif>
 </div>
 
 {{-- ================= COULEURS ================= --}}
