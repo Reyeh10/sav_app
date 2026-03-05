@@ -109,17 +109,30 @@ class="form-control"
 </select>
 </div>
 
-{{-- ================= CONFIGURATION ================= --}}
-<div class="col-md-6 mb-3">
-<label class="form-label">Configuration</label>
-<select name="configuration" class="form-control"
-@if($role === 'mecanicien' || $role === 'vendeur') disabled @endif>
-<option value="">-- Select --</option>
-<option value="Basic" {{ old('configuration', $vehicle->configuration)=='Basic'?'selected':'' }}>Basic</option>
-<option value="Medium Option" {{ old('configuration', $vehicle->configuration)=='Medium Option'?'selected':'' }}>Medium Option</option>
-<option value="Full Option" {{ old('configuration', $vehicle->configuration)=='Full Option'?'selected':'' }}>Full Option</option>
-</select>
-</div>
+{{-- ================= CONFIGURATION (CHAMP LIBRE) ================= --}}
+        @php
+            $role = auth()->user()->role;
+        @endphp
+
+        @if(in_array($role, ['admin','logistique']))
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Configuration</label>
+                <input type="text"
+                    name="configuration"
+                    class="form-control"
+                    placeholder="Ex: Sport AWD, Premium Tech, Full Option + Toit..."
+                    value="{{ old('configuration', $vehicle->configuration) }}">
+            </div>
+        @else
+            {{-- Optionnel: affichage lecture seule pour logistique/vendeur --}}
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Configuration</label>
+                <input type="text"
+                    class="form-control"
+                    value="{{ $vehicle->configuration }}"
+                    readonly>
+            </div>
+        @endif
 
 {{-- ================= ENGINE NUMBER ================= --}}
 <div class="col-md-6 mb-3">
@@ -171,13 +184,15 @@ class="form-control"
 </div>
 
 {{-- ================= COMMENT ================= --}}
+@if($role === 'admin' || $role === 'mecanicien')
 <div class="col-md-12 mb-3">
-<label class="form-label">Commentaire</label>
-<textarea name="comment"
-class="form-control"
-rows="3"
-@if($role === 'logistique' || $role === 'vendeur') readonly @endif>{{ old('comment', $vehicle->comment) }}</textarea>
+    <label class="form-label">Commentaire</label>
+
+    <textarea name="comment"
+              class="form-control"
+              rows="3">{{ old('comment', $vehicle->comment) }}</textarea>
 </div>
+@endif
 
 {{-- ================= STATUS ================= --}}
 @if($role === 'admin' || $role === 'mecanicien')
