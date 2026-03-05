@@ -109,24 +109,16 @@
 </div>
 
 {{-- ================= CONFIGURATION ================= --}}
-<!--div class="col-md-6 mb-3">
-    <label class="form-label">Configuration</label>
-    <select name="configuration" class="form-control">
-        <option value="">-- Select --</option>
-        <option value="Basic" { { old('configuration')=='Basic'?'selected':'' }}>Basic</option>
-        <option value="Medium Option" { { old('configuration')=='Medium Option'?'selected':'' }}>Medium Option</option>
-        <option value="Full Option" { { old('configuration')=='Full Option'?'selected':'' }}>Full Option</option>
-    </select>
-</div-->
-<div class="col-md-6 mb-3">
-    <label class="form-label">configuration</label>
-    <input type="text"
-       name="configuration"
-       class="form-control"
-       value="{{ old('configuration') }}"
-       placeholder="Ex: Full Option, Luxury, Premium Pack">
-</div>
+    @php $role = auth()->user()->role; @endphp
 
+    @if(in_array($role, ['admin','logistique']))
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Configuration</label>
+        <input type="text" name="configuration" class="form-control"
+            value="{{ old('configuration') }}"
+            placeholder="Ex: Sport AWD, Premium Tech...">
+    </div>
+    @endif
 
 {{-- ================= ENGINE NUMBER ================= --}}
 <div class="col-md-6 mb-3">
@@ -176,12 +168,26 @@
 </div>
 
 {{-- ================= COMMENT ================= --}}
+@if(auth()->user()->role == 'admin' || auth()->user()->role == 'mecanicien')
 <div class="col-md-12 mb-3">
     <label class="form-label">Commentaire</label>
     <textarea name="comment"
               class="form-control"
               rows="3">{{ old('comment') }}</textarea>
 </div>
+@endif
+{{-- ================= Configuration ================= --}}
+@if(auth()->user()->role == 'admin' || auth()->user()->role == 'mecanicien')
+
+<div class="col-md-6 mb-3">
+    <label class="form-label">Configuration</label>
+    <input type="text"
+           name="configuration"
+           class="form-control"
+           value="{{ old('configuration', $vehicle->configuration ?? '') }}">
+</div>
+
+@endif
 {{-- ================= STATUS ================= --}}
 <!--div class="col-md-6 mb-3">
     <label class="form-label">Statut *</label>
