@@ -3,47 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vehicle;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class LogistiqueDashboardController extends Controller
 {
     public function index()
     {
+
+        // TOTAL VEHICULES
         $totalVehicles = Vehicle::count();
-        $vehiclesEnAttente = Vehicle::where('status', 'En attente')->count();
-        $vehiclesEnReparation = Vehicle::where('status', 'En réparation')->count();
-        $vehiclesDisponibles = Vehicle::where('status', 'Disponible')->count();
 
-        // ✅ Véhicules importés aujourd'hui
-        $vehiclesToday = Vehicle::whereDate('arrival_date', Carbon::today())->count();
+        // VEHICULES IMPORTES AUJOURD'HUI
+       $vehiclesToday = Vehicle::whereDate('arrival_date', today())->count();
 
-        // Graph marque
+        // STATUT
+        $vehiclesEnAttente = Vehicle::where('status','En attente')->count();
+        $vehiclesEnReparation = Vehicle::where('status','En réparation')->count();
+        $vehiclesDisponibles = Vehicle::where('status','Disponible')->count();
+
+        // PAR MARQUE
         $vehiclesByBrand = Vehicle::selectRaw('brand, COUNT(*) as total')
             ->groupBy('brand')
             ->pluck('total','brand');
 
-        // Graph date
-        $vehiclesByMonthRaw = Vehicle::selectRaw('MONTH(arrival_date) as m, COUNT(*) as total')
-            ->whereNotNull('arrival_date')
-            ->groupBy('m')
-            ->orderBy('m')
-            ->pluck('total','m')
-            ->toArray();
-
-$vehiclesByMonth = [];
-
-for ($i = 1; $i <= 12; $i++) {
-    $vehiclesByMonth[] = $vehiclesByMonthRaw[$i] ?? 0;
-}
-
         return view('dashboard.logistique', compact(
             'totalVehicles',
+            'vehiclesToday',
             'vehiclesEnAttente',
             'vehiclesEnReparation',
             'vehiclesDisponibles',
-            'vehiclesToday',
-            'vehiclesByBrand',
-            'vehiclesByMonth'
+            'vehiclesByBrand'
         ));
     }
 }

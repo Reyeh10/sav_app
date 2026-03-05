@@ -84,11 +84,10 @@ public function store(Request $request)
             'model' => 'required|string|max:100',
             'model_year' => 'nullable|integer|min:1900|max:' . date('Y'),
             'engine' => 'nullable|in:Essence,Diesel,HEV,PHEV,Electrique',
-            //'configuration' => 'nullable|in:Basic,Medium Option,Full Option',
             'configuration' => 'nullable|string|max:255',
             'engine_number' => 'nullable|string|max:100',
             'mileage' => 'nullable|integer|min:0',
-            'plate_number' => 'nullable|string|max:100',
+           // 'plate_number' => 'nullable|string|max:100',
             'color_exterior' => 'nullable|string|max:50',
             'color_interior' => 'nullable|string|max:50',
             'arrival_date' => 'nullable|date',
@@ -109,6 +108,15 @@ public function store(Request $request)
        if (in_array($role, ['admin', 'mecanicien']) && $request->hasFile('image')) {
     $data['image'] = $request->file('image')->store('vehicles', 'public');
 }
+
+        /*
+    ================= CONFIGURATION SECURITY =================
+    logistique et vendeur ne peuvent pas modifier
+    */
+
+    if (!in_array($role, ['admin','mecanicien'])) {
+        unset($data['configuration']);
+    }
 
         Vehicle::create($data);
 
