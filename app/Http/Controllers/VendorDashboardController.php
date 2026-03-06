@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 
 class VendorDashboardController extends Controller
 {
-   public function index()
+    public function index()
     {
         /* =============================
            PARTIE 1 : KPI
@@ -107,7 +107,11 @@ $salesModelData = $salesByModel->values();
         // ✅ ventes par mois (réutilise)
         $salesFlow = $salesByMonth;
 
+<<<<<<< HEAD
             return view('dashboard.vendor', compact(
+=======
+        return view('dashboard.vendor', compact(
+>>>>>>> dev
             'totalSold',
             'stockVehicles',
             'waitingVehicles',

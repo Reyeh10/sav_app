@@ -135,28 +135,31 @@
 {{-- ================= SECTION 3 ================= --}}
 <div class="dash-section-title">🚗 Partie 3 — Flux des véhicules</div>
 
-    <div class="row g-3">
+<div class="row g-3">
 
-        <div class="col-lg-6">
-            <div class="chart-card bg-white">
-                <h6 class="fw-bold mb-3">Arrivées par mois</h6>
-                <div class="chart-wrap">
-                    <canvas id="arrivalChart"></canvas>
-                </div>
+    <div class="col-lg-6">
+        <div class="chart-card bg-white">
+            <h6 class="fw-bold mb-3">Arrivées par mois</h6>
+            <div class="chart-wrap">
+                <canvas id="arrivalChart"></canvas>
             </div>
         </div>
-
-        <div class="col-lg-6">
-            <div class="chart-card bg-white">
-                <h6 class="fw-bold mb-3">Ventes par mois</h6>
-                <div class="chart-wrap">
-                    <canvas id="flowChart"></canvas>
-                </div>
-            </div>
-        </div>
-
     </div>
 
+<<<<<<< HEAD
+=======
+    <div class="col-lg-6">
+        <div class="chart-card bg-white">
+            <h6 class="fw-bold mb-3">Ventes par mois</h6>
+            <div class="chart-wrap">
+                <canvas id="flowChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+>>>>>>> dev
 </div>
 
 
