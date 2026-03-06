@@ -146,8 +146,6 @@
         </div>
     </div>
 
-<<<<<<< HEAD
-=======
     <div class="col-lg-6">
         <div class="chart-card bg-white">
             <h6 class="fw-bold mb-3">Ventes par mois</h6>
@@ -159,7 +157,6 @@
 
 </div>
 
->>>>>>> dev
 </div>
 
 
