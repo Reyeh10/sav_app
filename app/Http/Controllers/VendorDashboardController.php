@@ -107,21 +107,17 @@ $salesModelData = $salesByModel->values();
         // ✅ ventes par mois (réutilise)
         $salesFlow = $salesByMonth;
 
-<<<<<<< HEAD
-            return view('dashboard.vendor', compact(
-=======
-        return view('dashboard.vendor', compact(
->>>>>>> dev
-            'totalSold',
-            'stockVehicles',
-            'waitingVehicles',
-            'totalClients',
-            'salesByMonth',
-            'arrivalByMonth',
-            'salesFlow',
-            'salesModelLabels',
-            'salesModelData',
-            'vehiclesByBrand'
-        ));
-    }
+    return view('dashboard.vendor', compact(
+        'totalSold',
+        'stockVehicles',
+        'waitingVehicles',
+        'totalClients',
+        'salesByMonth',
+        'arrivalByMonth',
+        'salesFlow',
+        'salesModelLabels',
+        'salesModelData',
+        'vehiclesByBrand'
+    ));
+     }
 }
