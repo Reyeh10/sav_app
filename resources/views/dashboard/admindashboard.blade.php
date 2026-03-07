@@ -133,7 +133,7 @@
 
 
 {{-- ================= SECTION 3 ================= --}}
-<div class="dash-section-title">🚗 Partie 3 — Flux des véhicules</div>
+<!--div class="dash-section-title">🚗 Partie 3 — Flux des véhicules</div>
 
     <div class="row g-3">
 
@@ -157,7 +157,7 @@
 
     </div>
 
-</div>
+</div-->
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

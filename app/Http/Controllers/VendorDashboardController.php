@@ -29,10 +29,10 @@ class VendorDashboardController extends Controller
 $totalSold = \App\Models\Sale::count();
 
 // Stock véhicules
-$stockVehicles = \App\Models\Vehicle::where('status','disponible')->count();
+$stockVehicles = \App\Models\Vehicle::where('status','Disponible')->count();
 
 // Véhicules en attente
-$waitingVehicles = \App\Models\Vehicle::where('status','attente')->count();
+$waitingVehicles = \App\Models\Vehicle::where('status','En attente')->count();
 
 // Total clients
 $totalClients = \App\Models\Customer::count();
@@ -87,12 +87,12 @@ $salesModelData = $salesByModel->values();
             ->limit(8)
             ->get();
 
-        /* =============================
+       /* =============================
            PARTIE 3 : FLUX
         ============================= */
 
         // ✅ arrivées par mois (12 mois)
-        $arrivalRaw = Vehicle::selectRaw('MONTH(arrival_date) as m, COUNT(*) as total')
+      $arrivalRaw = Vehicle::selectRaw('MONTH(arrival_date) as m, COUNT(*) as total')
             ->whereNotNull('arrival_date')
             ->groupBy('m')
             ->orderBy('m')
@@ -105,7 +105,7 @@ $salesModelData = $salesByModel->values();
         }
 
         // ✅ ventes par mois (réutilise)
-        $salesFlow = $salesByMonth;
+        $salesFlow = $salesByMonth; 
 
     return view('dashboard.vendor', compact(
         'totalSold',

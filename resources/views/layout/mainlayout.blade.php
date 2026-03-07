@@ -397,6 +397,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 </script>
+
+@if(session('error'))
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Action impossible',
+    text: "{{ session('error') }}",
+    confirmButtonColor: '#ff6b00',
+    confirmButtonText: 'OK'
+});
+</script>
+@endif
+
 @stack('scripts')
 </body>
 </html>

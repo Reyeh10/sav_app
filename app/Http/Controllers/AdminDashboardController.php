@@ -29,10 +29,10 @@ class AdminDashboardController extends Controller
 $totalSold = \App\Models\Sale::count();
 
 // Stock véhicules
-$stockVehicles = \App\Models\Vehicle::where('status','disponible')->count();
+$stockVehicles = \App\Models\Vehicle::where('status','Disponible')->count();
 
 // Véhicules en attente
-$waitingVehicles = \App\Models\Vehicle::where('status','attente')->count();
+$waitingVehicles = \App\Models\Vehicle::where('status','En attente')->count();
 
 // Total clients
 $totalClients = \App\Models\Customer::count();

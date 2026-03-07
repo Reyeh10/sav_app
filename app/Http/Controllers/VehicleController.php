@@ -197,6 +197,11 @@ public function update(Request $request, Vehicle $vehicle)
     /* ================= MECANICIEN ================= */
 elseif ($role === 'mecanicien') {
 
+    // 🚫 Si véhicule vendu → aucune modification possible
+        if ($vehicle->status === 'Vendu') {
+            return redirect()->route('vehicles.index')
+                ->with('error','Ce véhicule est déjà vendu. Modification impossible.');
+    }
     $data = $request->validate([
         'status' => 'required|in:Disponible,En réparation,En attente,Vendu',
         'comment' => 'nullable|string|max:1000',
