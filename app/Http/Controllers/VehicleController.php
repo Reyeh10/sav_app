@@ -294,8 +294,7 @@ public function approved(Request $request)
 =============================== */
 public function grid()
 {
-    $vehicles = Vehicle::latest()->get();
-
+   $vehicles = Vehicle::with('sale')->latest()->get();
     return view('vehicles.grid', compact('vehicles'));
 }
 

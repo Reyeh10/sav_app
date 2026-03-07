@@ -34,7 +34,7 @@ class Vehicle extends Model
     ===============================
     */
     public function sale()
-    {
-        return $this->hasOne(Sale::class);
-    }
+        {
+            return $this->hasOne(\App\Models\Sale::class);
+        }
 }

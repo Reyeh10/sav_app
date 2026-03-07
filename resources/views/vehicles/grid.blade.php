@@ -77,8 +77,8 @@ VIN : {{ $vehicle->vin }}
 <div>
 <p class="mb-0 text-muted fs-12">Prix de vente</p>
 <h6 class="fw-semibold">
-@if($vehicle->status === 'Vendu' && !empty($vehicle->sold_price))
-{{ number_format($vehicle->sold_price, 0, ',', ' ') }} Fdj
+@if($vehicle->sale)
+{{ number_format($vehicle->sale->sold_price, 0, ',', ' ') }} FDJ
 @else
 <span class="text-muted">Non vendu</span>
 @endif
