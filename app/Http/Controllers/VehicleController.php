@@ -70,6 +70,7 @@ public function store(Request $request)
         $role = auth()->user()->role;
         $allowedStatus = ['Disponible','En réparation','En attente','Vendu'];
         if ($role === 'admin') {
+        
         $data['status'] = in_array($request->status, $allowedStatus)
             ? $request->status
             : 'En attente';
@@ -171,7 +172,11 @@ public function update(Request $request, Vehicle $vehicle)
 
     /* ================= LOGISTIQUE ================= */
     elseif ($role === 'logistique') {
-
+        // 🚫 Si véhicule vendu → aucune modification possible
+        if ($vehicle->status === 'Vendu') {
+            return redirect()->route('vehicles.index')
+                ->with('error','Ce véhicule est déjà vendu. Modification impossible.');
+    }
         $data = $request->validate([
             'vin' => 'required|unique:vehicles,vin,' . $vehicle->id,
             'plate_number' => 'nullable|unique:vehicles,plate_number,' . $vehicle->id,

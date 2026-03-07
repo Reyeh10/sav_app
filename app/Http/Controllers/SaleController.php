@@ -56,11 +56,11 @@ public function create()
     $price = floatval($cleanPrice);
 
     // 🔥 Bloquer les montants trop grands AVANT DB
-    if ($price > 99999999.99) {
-        return back()->withErrors([
-            'sold_price' => 'Le montant est trop élevé.'
-        ])->withInput();
-    }
+    if ($price <= 0) {
+    return back()->withErrors([
+        'sold_price' => 'Le prix doit être supérieur à 0.'
+    ])->withInput();
+}
 
     // ✅ Maintenant validation normale
     $validated = $request->validate([
