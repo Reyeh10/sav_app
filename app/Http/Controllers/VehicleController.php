@@ -70,7 +70,7 @@ public function store(Request $request)
         $role = auth()->user()->role;
         $allowedStatus = ['Disponible','En réparation','En attente','Vendu'];
         if ($role === 'admin') {
-        
+
         $data['status'] = in_array($request->status, $allowedStatus)
             ? $request->status
             : 'En attente';
@@ -107,7 +107,18 @@ public function store(Request $request)
             : 'En attente';
 
        if (in_array($role, ['admin', 'mecanicien']) && $request->hasFile('image')) {
-    $data['image'] = $request->file('image')->store('vehicles', 'public');
+   // $data['image'] = $request->file('image')->store('vehicles', 'public');
+   if (in_array($role, ['admin','mecanicien']) && $request->hasFile('image')) {
+
+    $image = $request->file('image');
+
+    $imageName = time().'_'.$image->getClientOriginalName();
+
+    // déplacer dans public/storage/vehicles
+    $image->move(public_path('storage/vehicles'), $imageName);
+
+    $data['image'] = 'vehicles/'.$imageName;
+}
 }
 
         /*
@@ -164,7 +175,19 @@ public function update(Request $request, Vehicle $vehicle)
         \Illuminate\Support\Facades\Storage::disk('public')->delete($vehicle->image);
     }
 
-    $data['image'] = $request->file('image')->store('vehicles', 'public');
+    //$data['image'] = $request->file('image')->store('vehicles', 'public');
+    if (in_array($role, ['admin','mecanicien']) && $request->hasFile('image')) {
+
+    $image = $request->file('image');
+
+    $imageName = time().'_'.$image->getClientOriginalName();
+
+    // déplacer dans public/storage/vehicles
+    $image->move(public_path('storage/vehicles'), $imageName);
+
+    $data['image'] = 'vehicles/'.$imageName;
+}
+
 }
 
         $vehicle->update($data);
