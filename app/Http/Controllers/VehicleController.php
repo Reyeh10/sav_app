@@ -106,9 +106,9 @@ public function store(Request $request)
             ? $request->status
             : 'En attente';
 
-       if (in_array($role, ['admin', 'mecanicien']) && $request->hasFile('image')) {
+
    // $data['image'] = $request->file('image')->store('vehicles', 'public');
-   if (in_array($role, ['admin','mecanicien']) && $request->hasFile('image')) {
+  /*if (in_array($role, ['admin','mecanicien']) && $request->hasFile('image')) {
 
     $image = $request->file('image');
 
@@ -118,8 +118,25 @@ public function store(Request $request)
     $image->move(public_path('storage/vehicles'), $imageName);
 
     $data['image'] = 'vehicles/'.$imageName;
+}*/
+    if (in_array($role, ['admin','mecanicien']) && $request->hasFile('image')) {
+
+    $image = $request->file('image');
+
+    $imageName = uniqid().'_'.$image->getClientOriginalName();
+
+    $destination = base_path('../storage/vehicles');
+
+    if (!file_exists($destination)) {
+        mkdir($destination, 0755, true);
+    }
+
+    $image->move($destination, $imageName);
+
+    $data['image'] = 'vehicles/'.$imageName;
 }
-}
+
+
 
         /*
     ================= CONFIGURATION SECURITY =================
@@ -176,17 +193,34 @@ public function update(Request $request, Vehicle $vehicle)
     }
 
     //$data['image'] = $request->file('image')->store('vehicles', 'public');
-    if (in_array($role, ['admin','mecanicien']) && $request->hasFile('image')) {
+        /*if (in_array($role, ['admin','mecanicien']) && $request->hasFile('image')) {
 
-    $image = $request->file('image');
+        $image = $request->file('image');
 
-    $imageName = time().'_'.$image->getClientOriginalName();
+        $imageName = time().'_'.$image->getClientOriginalName();
 
-    // déplacer dans public/storage/vehicles
-    $image->move(public_path('storage/vehicles'), $imageName);
+        // déplacer dans public/storage/vehicles
+        $image->move(public_path('storage/vehicles'), $imageName);
 
-    $data['image'] = 'vehicles/'.$imageName;
-}
+        $data['image'] = 'vehicles/'.$imageName;
+    }*/
+
+        if ($request->hasFile('image')) {
+
+            $image = $request->file('image');
+
+            $imageName = uniqid().'_'.$image->getClientOriginalName();
+
+            $destination = base_path('../storage/vehicles');
+
+            if (!file_exists($destination)) {
+                mkdir($destination, 0755, true);
+            }
+
+            $image->move($destination, $imageName);
+
+            $updateData['image'] = 'vehicles/'.$imageName;
+        }
 
 }
 
@@ -509,21 +543,28 @@ try {
 /* ===============================
    DELETE (ADMIN SEULEMENT)
 =============================== */
-public function destroy(Vehicle $vehicle)
-{
-    if (auth()->user()->role !== 'admin') {
+    public function destroy(Vehicle $vehicle)
+    {
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('vehicles.index')
+                ->with('error','Seul l\'admin peut supprimer.');
+        }
+
+        // Supprimer l'image si elle existe
+        if ($vehicle->image) {
+
+            $path = base_path('../storage/'.$vehicle->image);
+
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
+
+        // supprimer le véhicule
+        $vehicle->delete();
+
         return redirect()->route('vehicles.index')
-            ->with('error','Seul l\'admin peut supprimer.');
+            ->with('success', 'Véhicule supprimé ✅');
     }
-
-    if ($vehicle->image && Storage::disk('public')->exists($vehicle->image)) {
-        Storage::disk('public')->delete($vehicle->image);
-    }
-
-    $vehicle->delete();
-
-    return redirect()->route('vehicles.index')
-        ->with('success', 'Véhicule supprimé ✅');
-}
 
 }
