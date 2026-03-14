@@ -127,11 +127,11 @@ Route::middleware(['auth','nocache'])->group(function () {
         ->name('vehicles.destroy');
 
     Route::get('/vehicles-sold', [VehicleController::class, 'sold'])
-        ->middleware('role:admin,vendeur,mecanicien')
+        ->middleware('role:admin,vendeur,mecanicien,logistique')
         ->name('vehicles.sold');
-        
+
     Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])
-    ->middleware('role:admin,vendeur,mecanicien')
+    ->middleware('role:admin,vendeur,mecanicien,logistique')
     ->name('vehicles.show');
     /*
     ================= UPDATE PRICE (FIXED POSITION) =================

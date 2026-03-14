@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Vehicle;
 //use App\Imports\VehiclesImport;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Storage;
+//use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
@@ -204,7 +204,6 @@ public function update(Request $request, Vehicle $vehicle)
 
         $data['image'] = 'vehicles/'.$imageName;
     }*/
-
         if ($request->hasFile('image')) {
 
             $image = $request->file('image');
@@ -219,10 +218,11 @@ public function update(Request $request, Vehicle $vehicle)
 
             $image->move($destination, $imageName);
 
-            $updateData['image'] = 'vehicles/'.$imageName;
+            $data['image'] = 'vehicles/'.$imageName;
         }
 
-}
+
+    }
 
         $vehicle->update($data);
     }
@@ -276,7 +276,19 @@ elseif ($role === 'mecanicien') {
     ];
 
     if ($request->hasFile('image')) {
-        $updateData['image'] = $request->file('image')->store('vehicles', 'public');
+        $image = $request->file('image');
+
+        $imageName = uniqid().'_'.$image->getClientOriginalName();
+
+        $destination = base_path('../storage/vehicles');
+
+        if (!file_exists($destination)) {
+            mkdir($destination, 0755, true);
+        }
+
+        $image->move($destination, $imageName);
+
+        $updateData['image'] = 'vehicles/'.$imageName;
     }
 
     // 🔒 Mise à jour UNIQUEMENT de ces champs

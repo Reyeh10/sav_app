@@ -148,10 +148,9 @@
                                             </a>
                                         @endif
                                     @endauth
-
-                                {{-- MECANICIEN : voir seulement --}}
+                                {{-- MECANICIEN + LOGISTIQUE : voir seulement --}}
                                 @auth
-                                @if(auth()->user()->role === 'mecanicien')
+                                @if(in_array(auth()->user()->role, ['mecanicien','logistique']))
                                     <a href="{{ route('vehicles.show', $vehicle->id) }}"
                                     class="btn btn-sm btn-info">
                                         Voir

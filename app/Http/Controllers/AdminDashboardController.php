@@ -17,9 +17,20 @@ class AdminDashboardController extends Controller
         ============================= */
        /* $totalSold       = Sale::count();
         $stockVehicles   = Vehicle::where('status', 'Disponible')->count();
-        $waitingVehicles = Vehicle::where('status', 'En attente')->count(); */
-        $totalClients    = Customer::count();
+        $waitingVehicles = Vehicle::where('status', 'En attente')->count();
+        $totalClients    = Customer::count();*/
 
+        // Total voitures vendues
+        $totalSold = Sale::count();
+
+        // Stock véhicules
+        $stockVehicles = Vehicle::where('status','Disponible')->count();
+
+        // Véhicules en attente
+        $waitingVehicles = Vehicle::where('status','En attente')->count();
+
+        // Total clients
+        $totalClients = Customer::count();
 
 /* =============================
         PARTIE 2 : ANALYSE
@@ -107,6 +118,54 @@ $salesModelData = $salesByModel->values();
         // ✅ ventes par mois (réutilise)
         $salesFlow = $salesByMonth;
 
+
+        /* =============================
+        PARTIE 4 : REVENUS
+        ============================= */
+
+
+
+            // Chiffre d'affaires total
+            $totalRevenue = Sale::sum('sold_price');
+
+            // Revenus ce mois
+            $revenueThisMonth = Sale::whereMonth('created_at', now()->month)
+                                    ->sum('sold_price');
+
+            // Prix moyen
+            $averageSalePrice = Sale::avg('sold_price');
+
+            // Meilleure vente
+            $maxSalePrice = Sale::max('sold_price');
+
+
+        /* =============================
+                PARTIE 5 : TOP VOITURES VENDUES
+        ============================= */
+
+        $topVehicles = Sale::with('vehicle')
+            ->selectRaw('vehicle_id, COUNT(*) as total')
+            ->groupBy('vehicle_id')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+
+            /* =============================
+                    PARTIE 6 : STOCK PAR MARQUE
+            ============================= */
+
+        $stockByBrand = Vehicle::selectRaw('brand, COUNT(*) as total')
+            ->where('status','Disponible')
+            ->whereNotNull('brand')
+            ->groupBy('brand')
+            ->orderByDesc('total')
+            ->get();
+
+            /* =============================
+        RETURN VIEW
+        ============================= */
+
             return view('dashboard.admindashboard', compact(
             'totalSold',
             'stockVehicles',
@@ -117,7 +176,19 @@ $salesModelData = $salesByModel->values();
             'salesFlow',
             'salesModelLabels',
             'salesModelData',
-            'vehiclesByBrand'
+            'vehiclesByBrand',
+
+            // PARTIE 4
+            'totalRevenue',
+            'revenueThisMonth',
+            'averageSalePrice',
+            'maxSalePrice',
+
+            // PARTIE 5
+            'topVehicles',
+
+            // PARTIE 6
+            'stockByBrand'
         ));
     }
 }
