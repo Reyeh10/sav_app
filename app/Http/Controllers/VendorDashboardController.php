@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 
 class VendorDashboardController extends Controller
 {
-    public function index()
+     public function index()
     {
         /* =============================
            PARTIE 1 : KPI
@@ -99,25 +99,40 @@ $salesModelData = $salesByModel->values();
             ->get();
 
         /* =============================
-           PARTIE 3 : FLUX
+        PARTIE 3 : FLUX DES VÉHICULES
         ============================= */
 
-        // ✅ arrivées par mois (12 mois)
-        $arrivalRaw = Vehicle::selectRaw('MONTH(arrival_date) as m, COUNT(*) as total')
+        $year = request('year', date('Y'));
+
+        /* ARRIVÉES */
+        $arrivalRawFlow = Vehicle::selectRaw('MONTH(arrival_date) as m, COUNT(*) as total')
             ->whereNotNull('arrival_date')
+            ->whereYear('arrival_date', $year)
             ->groupBy('m')
-            ->orderBy('m')
-            ->pluck('total', 'm')
+            ->pluck('total','m')
             ->toArray();
 
         $arrivalByMonth = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $arrivalByMonth[] = $arrivalRaw[$i] ?? 0;
+
+        for ($i=1;$i<=12;$i++){
+            $arrivalByMonth[] = $arrivalRawFlow[$i] ?? 0;
         }
 
-        // ✅ ventes par mois (réutilise)
-        $salesFlow = $salesByMonth;
 
+        /* VENTES */
+        $salesRawFlow = Vehicle::selectRaw('MONTH(sold_at) as m, COUNT(*) as total')
+            ->where('status','Vendu')
+            ->whereNotNull('sold_at')
+            ->whereYear('sold_at',$year)
+            ->groupBy('m')
+            ->pluck('total','m')
+            ->toArray();
+
+        $salesByMonth = [];
+
+        for ($i=1;$i<=12;$i++){
+            $salesByMonth[] = $salesRawFlow[$i] ?? 0;
+        }
 
         /* =============================
         PARTIE 4 : REVENUS
