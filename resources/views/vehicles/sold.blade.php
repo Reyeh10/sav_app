@@ -89,8 +89,7 @@
                                 <td>{{ $vehicle->vin }}</td>
                                 <td>{{ $vehicle->brand ?? 'UNKNOWN' }}</td>
                                 <td>{{ $vehicle->model }}</td>
-                                <td>{{ $vehicle->year }}</td>
-
+                               <td>{{ $vehicle->model_year ?? '-' }}</td>
                                 {{-- ================= PRIX ================= --}}
                                 <td>
                                     @if($vehicle->sale && $vehicle->sale->sold_price)

@@ -108,7 +108,8 @@ public function create()
 
         // ✅ Mise à jour véhicule
         $vehicle->update([
-            'status' => 'Vendu'
+            'status'  => 'Vendu',
+            'sold_at' => now()   // ✅ IMPORTANT
         ]);
 
         DB::commit();

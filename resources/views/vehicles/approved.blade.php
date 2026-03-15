@@ -87,7 +87,7 @@
 <td>{{ $vehicle->model }}</td>
 <td>{{ $vehicle->color_exterior ?? '-' }}</td>
 <td>{{ $vehicle->color_interior ?? '-' }}</td>
-<td>{{ $vehicle->year }}</td>
+<td>{{ $vehicle->model_year ?? '-' }}</td>
 <td>{{ $vehicle->engine ?? '-' }}</td>
 <td>{{ $vehicle->configuration ?? '-' }}</td>
 <td>{{ $vehicle->engine_number ?? '-' }}</td>

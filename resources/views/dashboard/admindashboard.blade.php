@@ -131,26 +131,38 @@
 
 
 {{-- ================= SECTION 3 ================= --}}
-<div class="dash-section-title">🚗 Partie 3 — Flux des véhicules</div>
+<div class="dash-section-title">
+🚗 Partie 3 — Flux des véhicules
+</div>
 
-<div class="row g-3">
-
-<div class="col-lg-6">
 <div class="chart-card bg-white">
-<h6 class="fw-bold mb-3">Arrivées par mois</h6>
-<div class="chart-wrap">
-<canvas id="arrivalChart"></canvas>
-</div>
-</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+<h6 class="fw-bold mb-0">
+📈 Évolution mensuelle — Ventes & Arrivées
+</h6>
+
+<form method="GET">
+<select name="year"
+class="form-select form-select-sm"
+style="width:120px"
+onchange="this.form.submit()">
+
+@for($y = date('Y'); $y >= 2023; $y--)
+<option value="{{ $y }}"
+{{ request('year', date('Y')) == $y ? 'selected' : '' }}>
+{{ $y }}
+</option>
+@endfor
+
+</select>
+</form>
+
 </div>
 
-<div class="col-lg-6">
-<div class="chart-card bg-white">
-<h6 class="fw-bold mb-3">Ventes par mois</h6>
 <div class="chart-wrap">
-<canvas id="flowChart"></canvas>
-</div>
-</div>
+<canvas id="vehicleFlowChart"></canvas>
 </div>
 
 </div>
@@ -356,38 +368,46 @@ options:{responsive:true,maintainAspectRatio:false,cutout:'65%'}
 });
 
 
-new Chart(document.getElementById('arrivalChart'),{
+new Chart(document.getElementById('vehicleFlowChart'),{
 type:'line',
 data:{
 labels:monthsFR,
-datasets:[{
+datasets:[
+{
+label:'Ventes',
+data:salesData,
+borderColor:'#0d6efd',
+backgroundColor:'rgba(13,110,253,0.15)',
+fill:true,
+tension:0.4
+},
+{
 label:'Arrivées',
 data:arrivalData,
 borderColor:'#17a2b8',
 backgroundColor:'rgba(23,162,184,0.15)',
 fill:true,
 tension:0.4
-}]
+}
+]
 },
-options:{responsive:true,maintainAspectRatio:false}
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{
+position:'top'
+}
+},
+scales:{
+y:{
+beginAtZero:true,
+ticks:{precision:0}
+}
+}
+}
 });
 
-
-new Chart(document.getElementById('flowChart'),{
-type:'line',
-data:{
-labels:monthsFR,
-datasets:[{
-label:'Ventes',
-data:salesFlow,
-borderColor:'#dc3545',
-backgroundColor:'rgba(220,53,69,0.15)',
-fill:true,
-tension:0.4
-}]
-},
-options:{responsive:true,maintainAspectRatio:false}
-});
 
 
 new Chart(document.getElementById('stockBrandChart'),{
