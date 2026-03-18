@@ -366,10 +366,62 @@ public function approved(Request $request)
 /* ===============================
    GRID VIEW
 =============================== */
-public function grid()
+/*public function grid()
 {
    $vehicles = Vehicle::with('sale')->latest()->get();
     return view('vehicles.grid', compact('vehicles'));
+}*/
+
+public function grid(Request $request)
+{
+    $query = Vehicle::with('sale');
+
+    /*
+    =================================
+    SEARCH
+    =================================
+    */
+    if ($request->filled('search')) {
+
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+            $q->where('brand', 'like', "%{$search}%")
+              ->orWhere('model', 'like', "%{$search}%")
+              ->orWhere('vin', 'like', "%{$search}%");
+        });
+    }
+
+    /*
+    =================================
+    FILTER STATUS
+    =================================
+    */
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    /*
+    =================================
+    ORDER
+    =================================
+    */
+    $vehicles = $query->latest()->get();
+
+    /*
+    =================================
+    COUNTERS (POUR LES BADGES)
+    =================================
+    */
+    $counts = [
+        'total' => Vehicle::count(),
+        'Disponible' => Vehicle::where('status', 'Disponible')->count(),
+        'En attente' => Vehicle::where('status', 'En attente')->count(),
+        'En réparation' => Vehicle::where('status', 'En réparation')->count(),
+        'Vendu' => Vehicle::where('status', 'Vendu')->count(),
+    ];
+
+    return view('vehicles.grid', compact('vehicles', 'counts'));
 }
 
 /* ===============================

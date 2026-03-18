@@ -25,7 +25,80 @@
         </a>
     @endif
 </div>
+<!-- ================= SEARCH + LEGENDS ================= -->
+<div class="card shadow-sm border-0 mb-4">
+<div class="card-body">
 
+<form method="GET" action="{{ route('vehicles.grid') }}">
+
+<div class="row align-items-center g-2">
+
+<!-- 🔎 SEARCH -->
+<div class="col-lg-4">
+<div class="input-group">
+
+<span class="input-group-text bg-light">
+<i class="ti ti-search"></i>
+</span>
+
+<input type="text"
+name="search"
+value="{{ request('search') }}"
+class="form-control"
+placeholder="Rechercher marque, modèle, VIN...">
+
+</div>
+</div>
+
+<!-- 📊 LEGENDS -->
+<div class="col-lg-6 d-flex flex-wrap gap-2">
+
+<a href="{{ route('vehicles.grid') }}"
+class="badge rounded-pill bg-primary px-3 py-2">
+Tous {{ $vehicles->count() }}
+</a>
+
+<a href="{{ route('vehicles.grid',['status'=>'Disponible']) }}"
+class="badge rounded-pill bg-success px-3 py-2">
+Disponible {{ $vehicles->where('status','Disponible')->count() }}
+</a>
+
+<a href="{{ route('vehicles.grid',['status'=>'En attente']) }}"
+class="badge rounded-pill bg-info px-3 py-2">
+En attente {{ $vehicles->where('status','En attente')->count() }}
+</a>
+
+<a href="{{ route('vehicles.grid',['status'=>'En réparation']) }}"
+class="badge rounded-pill bg-warning px-3 py-2">
+En réparation {{ $vehicles->where('status','En réparation')->count() }}
+</a>
+
+<a href="{{ route('vehicles.grid',['status'=>'Vendu']) }}"
+class="badge rounded-pill bg-danger px-3 py-2">
+Vendu {{ $vehicles->where('status','Vendu')->count() }}
+</a>
+
+</div>
+
+<!-- 🔘 BUTTON -->
+<div class="col-lg-2 text-end">
+
+@if(in_array(auth()->user()->role,['admin','logistique']))
+<a href="{{ route('vehicles.create') }}"
+class="btn btn-primary">
+<i class="ti ti-plus"></i>
+Ajouter
+</a>
+@endif
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+</div>
 <!-- ================= GRID ================= -->
 <div class="row">
 
