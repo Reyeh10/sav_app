@@ -217,7 +217,7 @@ onchange="this.form.submit()">
 
 
 {{-- ================= SECTION 4 ================= --}}
-<div class="dash-section-title">💰 Partie 4 — Revenus</div>
+<!--div class="dash-section-title">💰 Partie 4 — Revenus</div>
 
 <div class="row g-3">
 
@@ -225,7 +225,7 @@ onchange="this.form.submit()">
 <div class="kpi-card bg-white">
 <div>
 <p class="kpi-value text-success">
-{{ number_format($totalRevenue, 2, ',', ' ') }} FDJ
+{ { number_format($totalRevenue, 2, ',', ' ') }} FDJ
 </p>
 <p class="kpi-label">Revenus total</p>
 </div>
@@ -237,7 +237,7 @@ onchange="this.form.submit()">
 <div class="kpi-card bg-white">
 <div>
 <p class="kpi-value text-primary">
-{{ number_format($revenueThisMonth, 2, ',', ' ') }} FDJ
+{ { number_format($revenueThisMonth, 2, ',', ' ') }} FDJ
 </p>
 <p class="kpi-label">Revenus ce mois</p>
 </div>
@@ -249,7 +249,7 @@ onchange="this.form.submit()">
 <div class="kpi-card bg-white">
 <div>
 <p class="kpi-value text-warning">
-{{ number_format($averageSalePrice, 2, ',', ' ') }} FDJ
+{ { number_format($averageSalePrice, 2, ',', ' ') }} FDJ
 </p>
 <p class="kpi-label">Prix moyen</p>
 </div>
@@ -261,7 +261,7 @@ onchange="this.form.submit()">
 <div class="kpi-card bg-white">
 <div>
 <p class="kpi-value text-danger">
-{{ number_format($maxSalePrice, 2, ',', ' ') }} FDJ
+{ { number_format($maxSalePrice, 2, ',', ' ') }} FDJ
 </p>
 <p class="kpi-label">Meilleure vente</p>
 </div>
@@ -269,10 +269,10 @@ onchange="this.form.submit()">
 </div>
 </div>
 
-</div>
+</div-->
 
-{{-- ================= SECTION 5 ================= --}}
-<div class="dash-section-title">📦 Partie 5 — Stock par marque</div>
+{{-- ================= SECTION 4 ================= --}}
+<div class="dash-section-title">📦 Partie 4 — Stock par marque</div>
 
 <div class="row">
 <div class="col-lg-12">
