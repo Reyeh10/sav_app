@@ -93,7 +93,7 @@
                                 {{-- ================= PRIX ================= --}}
                                 <td>
                                     @if($vehicle->sale && $vehicle->sale->sold_price)
-                                        {{ number_format($vehicle->sale->sold_price, 3, ',', ' ') }} FDJ
+                                        {{ number_format((string)$vehicle->sale->sold_price, 2, ',', ' ') }} FDJ
                                     @else
                                         Non défini
                                     @endif

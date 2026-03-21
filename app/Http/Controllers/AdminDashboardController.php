@@ -21,8 +21,11 @@ class AdminDashboardController extends Controller
         $totalClients    = Customer::count();*/
 
         // Total voitures vendues
-        $totalSold = Sale::count();
-
+        //$totalSold = Sale::count();
+        $totalSold = Vehicle::where('status', 'Vendu')->count();
+      /*  $totalSold = Sale::whereHas('vehicle', function($q){
+            $q->where('status', 'Vendu');
+        })->count(); */
         // Stock véhicules
         $stockVehicles = Vehicle::where('status','Disponible')->count();
 
@@ -37,7 +40,7 @@ class AdminDashboardController extends Controller
 ============================= */
 
 // Total voitures vendues
-$totalSold = \App\Models\Sale::count();
+//$totalSold = \App\Models\Sale::count();
 
 // Stock véhicules
 $stockVehicles = \App\Models\Vehicle::where('status','Disponible')->count();
@@ -76,7 +79,10 @@ $salesFlow = [
         VENTES PAR MODÈLE
 ============================= */
 
-$salesByModel = \App\Models\Sale::with('vehicle')
+$salesByModel = Sale::with('vehicle')
+    ->whereHas('vehicle', function($q){
+        $q->where('status', 'Vendu');
+    })
     ->get()
     ->groupBy(function ($sale) {
         return $sale->vehicle->model ?? 'Inconnu';
@@ -141,17 +147,34 @@ $salesModelData = $salesByModel->values();
 
 
             // Chiffre d'affaires total
-            $totalRevenue = Sale::sum('sold_price');
-
+            //$totalRevenue = Sale::sum('sold_price');
+            $totalRevenue = Sale::whereHas('vehicle', function($q){
+                $q->where('status', 'Vendu');
+            })->sum('sold_price');
             // Revenus ce mois
             $revenueThisMonth = Sale::whereMonth('created_at', now()->month)
                                     ->sum('sold_price');
-
             // Prix moyen
             $averageSalePrice = Sale::avg('sold_price');
-
             // Meilleure vente
             $maxSalePrice = Sale::max('sold_price');
+
+
+            $revenueThisMonth = Sale::whereHas('vehicle', function($q){
+                $q->where('status', 'Vendu');
+            })
+            ->whereMonth('created_at', now()->month)
+            ->sum('sold_price');
+
+            $averageSalePrice = Sale::whereHas('vehicle', function($q){
+                $q->where('status', 'Vendu');
+            })
+            ->avg('sold_price');
+
+            $maxSalePrice = Sale::whereHas('vehicle', function($q){
+                $q->where('status', 'Vendu');
+            })
+            ->max('sold_price');
 
 
         /* =============================
@@ -159,6 +182,9 @@ $salesModelData = $salesByModel->values();
         ============================= */
 
         $topVehicles = Sale::with('vehicle')
+            ->whereHas('vehicle', function($q){
+                $q->where('status', 'Vendu');
+            })
             ->selectRaw('vehicle_id, COUNT(*) as total')
             ->groupBy('vehicle_id')
             ->orderByDesc('total')

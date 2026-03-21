@@ -176,7 +176,9 @@ onchange="this.form.submit()">
 <div class="col-xl-3 col-md-6">
 <div class="kpi-card bg-white">
 <div>
-<p class="kpi-value text-success">{{ number_format($totalRevenue,0,',',' ') }} $</p>
+<p class="kpi-value text-success">
+{{ number_format($totalRevenue, 2, ',', ' ') }} FDJ
+</p>
 <p class="kpi-label">Revenus total</p>
 </div>
 <i class="ti ti-cash fs-1 text-success opacity-50"></i>
@@ -186,7 +188,9 @@ onchange="this.form.submit()">
 <div class="col-xl-3 col-md-6">
 <div class="kpi-card bg-white">
 <div>
-<p class="kpi-value text-primary">{{ number_format($revenueThisMonth,0,',',' ') }} $</p>
+<p class="kpi-value text-primary">
+{{ number_format($revenueThisMonth, 2, ',', ' ') }} FDJ
+</p>
 <p class="kpi-label">Revenus ce mois</p>
 </div>
 <i class="ti ti-chart-line fs-1 text-primary opacity-50"></i>
@@ -196,7 +200,9 @@ onchange="this.form.submit()">
 <div class="col-xl-3 col-md-6">
 <div class="kpi-card bg-white">
 <div>
-<p class="kpi-value text-warning">{{ number_format($averageSalePrice,0,',',' ') }} $</p>
+<p class="kpi-value text-warning">
+{{ number_format($averageSalePrice, 2, ',', ' ') }} FDJ
+</p>
 <p class="kpi-label">Prix moyen</p>
 </div>
 <i class="ti ti-calculator fs-1 text-warning opacity-50"></i>
@@ -206,7 +212,9 @@ onchange="this.form.submit()">
 <div class="col-xl-3 col-md-6">
 <div class="kpi-card bg-white">
 <div>
-<p class="kpi-value text-danger">{{ number_format($maxSalePrice,0,',',' ') }} $</p>
+<p class="kpi-value text-danger">
+{{ number_format($maxSalePrice, 2, ',', ' ') }} FDJ
+</p>
 <p class="kpi-label">Meilleure vente</p>
 </div>
 <i class="ti ti-trophy fs-1 text-danger opacity-50"></i>
@@ -214,8 +222,6 @@ onchange="this.form.submit()">
 </div>
 
 </div>
-
-
 {{-- ================= SECTION 5 ================= --}}
 <div class="dash-section-title">🏆 Partie 5 — Top voitures vendues</div>
 

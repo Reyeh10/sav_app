@@ -178,8 +178,31 @@ public function update(Request $request, Vehicle $vehicle)
 
     /* ================= ADMIN ================= */
     if ($role === 'admin') {
-
         $data = $request->all();
+    /* ***************   vendu to disponible ***********  */
+        $oldStatus = $vehicle->status;
+        $newStatus = $data['status'] ?? $oldStatus;
+
+        /*
+        =================================
+        RESET PRICE SI VENDU → DISPONIBLE
+        =================================
+        */
+        if ($oldStatus === 'Vendu' && $newStatus === 'Disponible') {
+
+            // Supprimer ou reset le prix dans la table sales
+            if ($vehicle->sale) {
+
+                // OPTION 1 (RECOMMANDÉE) → reset prix
+                $vehicle->sale()->update([
+                    'sold_price' => 0
+                ]);
+
+                // OPTION 2 → supprimer la vente (si logique métier)
+                // $vehicle->sale()->delete();
+            }
+        }
+     /* *************** END  vendu to disponible ***********  */
 
         if (isset($data['status']) && !in_array($data['status'], $allowedStatus)) {
             $data['status'] = $vehicle->status;
@@ -447,7 +470,9 @@ public function updatePrice(Request $request, Vehicle $vehicle)
         'sold_price' => 'required'
     ]);
 
-    $price = floatval(str_replace(',', '', $request->sold_price));
+   // $price = floatval(str_replace(',', '', $request->sold_price));
+    $price = str_replace(' ', '', $request->sold_price);
+    $price = str_replace(',', '.', $price);
 
     if ($price <= 0) {
         return back()->with('error', 'Le prix doit être supérieur à 0');
