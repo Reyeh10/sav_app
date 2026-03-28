@@ -346,10 +346,14 @@ public function sold(Request $request)
         });
     }
 
-    //$vehicles = $query->latest()->paginate(10);
-    $vehicles = $query
-    ->with('sale')   // ✅ AJOUT IMPORTANT
+
+   /* $vehicles = $query
+    ->with('sale')
     ->latest()
+    ->paginate(10); */
+    $vehicles = $query
+    ->with('sale')
+    ->orderBy('sold_at', 'desc')
     ->paginate(10);
 
     return view('vehicles.sold', compact('vehicles'));
