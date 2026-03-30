@@ -349,10 +349,11 @@ public function sold(Request $request)
 
    /* $vehicles = $query
     ->with('sale')
-    ->latest()
-    ->paginate(10); */
+    ->orderBy('sold_at', 'desc')
+    ->paginate(10);*/
+    
     $vehicles = $query
-    ->with('sale')
+    ->with('sale.customer') // ✅ IMPORTANT
     ->orderBy('sold_at', 'desc')
     ->paginate(10);
 

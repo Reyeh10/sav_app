@@ -74,7 +74,8 @@
                                 <th>Modèle</th>
                                 <th>Model year</th>
                                 <th>Prix de vente</th>
-                                 <th>Date de vente</th>
+                                <th>Date de vente</th>
+                                <th>Client</th>
                                 <th>Statut</th>
                                 <th width="180">Actions</th>
                             </tr>
@@ -117,8 +118,12 @@
                                         -
                                     @endif
                                 </td>
-
+                                {{-- ================= Client ================= --}}
+                                <td>
+                                    {{ optional($vehicle->sale->customer)->name ?? 'N/A' }}
+                                </td>
                                 {{-- ================= STATUT ================= --}}
+
                                 <td>
                                     <span class="badge bg-success">
                                         Vendu
