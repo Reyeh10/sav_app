@@ -32,6 +32,20 @@
                             required>
 
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Client</label>
+
+                        <select name="customer_id" class="form-control" required>
+                            <option value="">-- Sélectionner --</option>
+
+                            @foreach(\App\Models\Customer::all() as $customer)
+                                <option value="{{ $customer->id }}"
+                                    {{ $vehicle->sale?->customer_id == $customer->id ? 'selected' : '' }}>
+                                    {{ $customer->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-success">

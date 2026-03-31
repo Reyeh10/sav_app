@@ -193,6 +193,21 @@ class="form-control"
               rows="3">{{ old('comment', $vehicle->comment) }}</textarea>
 </div>
 @endif
+{{-- ================= Client ================= --}}
+<!--div class="col-md-6 mb-3">
+    <label class="form-label">Client</label>
+
+    <select name="customer_id" class="form-control">
+        <option value="">-- Sélectionner --</option>
+
+        @ foreach($customers as $customer)
+            <option value="{ { $customer->id }}"
+                { { optional($vehicle->sale)->customer_id == $customer->id ? 'selected' : '' }}>
+                { { $customer->name }}
+            </option>
+        @ endforeach
+    </select>
+</div-->
 
 {{-- ================= STATUS ================= --}}
 @if($role === 'admin' || $role === 'mecanicien')

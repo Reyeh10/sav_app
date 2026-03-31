@@ -166,7 +166,10 @@ public function edit(Vehicle $vehicle)
             ->with('error', 'Vous n’avez pas le droit de modifier.');
     }
 
-    return view('vehicles.edit', compact('vehicle'));
+    //return view('vehicles.edit', compact('vehicle'));
+    $vehicle->load('sale.customer'); // 🔥 IMPORTANT
+    $customers = \App\Models\Customer::all();
+    return view('vehicles.edit', compact('vehicle', 'customers'));
 }
 /* ===============================
    UPDATE (SÉCURISÉ PAR RÔLE)
@@ -215,18 +218,6 @@ public function update(Request $request, Vehicle $vehicle)
         \Illuminate\Support\Facades\Storage::disk('public')->delete($vehicle->image);
     }
 
-    //$data['image'] = $request->file('image')->store('vehicles', 'public');
-        /*if (in_array($role, ['admin','mecanicien']) && $request->hasFile('image')) {
-
-        $image = $request->file('image');
-
-        $imageName = time().'_'.$image->getClientOriginalName();
-
-        // déplacer dans public/storage/vehicles
-        $image->move(public_path('storage/vehicles'), $imageName);
-
-        $data['image'] = 'vehicles/'.$imageName;
-    }*/
         if ($request->hasFile('image')) {
 
             $image = $request->file('image');
@@ -248,6 +239,12 @@ public function update(Request $request, Vehicle $vehicle)
     }
 
         $vehicle->update($data);
+        /* ================= UPDATE CLIENT (SALE) ================= */
+        if ($request->filled('customer_id') && $vehicle->sale) {
+            $vehicle->sale->update([
+                'customer_id' => $request->customer_id
+            ]);
+        }
     }
 
     /* ================= LOGISTIQUE ================= */
@@ -351,7 +348,7 @@ public function sold(Request $request)
     ->with('sale')
     ->orderBy('sold_at', 'desc')
     ->paginate(10);*/
-    
+
     $vehicles = $query
     ->with('sale.customer') // ✅ IMPORTANT
     ->orderBy('sold_at', 'desc')
@@ -469,7 +466,7 @@ public function editPrice(Vehicle $vehicle)
     return view('vehicles.edit-price', compact('vehicle'));
 }
 
-public function updatePrice(Request $request, Vehicle $vehicle)
+/*public function updatePrice(Request $request, Vehicle $vehicle)
 {
     $request->validate([
         'sold_price' => 'required'
@@ -491,6 +488,46 @@ public function updatePrice(Request $request, Vehicle $vehicle)
     return redirect()
         ->route('vehicles.sold')
         ->with('success', 'Prix modifié avec succès.');
+}*/
+public function updatePrice(Request $request, Vehicle $vehicle)
+{
+    $request->validate([
+        'sold_price' => 'required',
+        'customer_id' => 'required|exists:customers,id'
+    ]);
+
+    // 🔥 Nettoyage prix
+    $price = str_replace(' ', '', $request->sold_price);
+    $price = str_replace(',', '.', $price);
+
+    if ($price <= 0) {
+        return back()->with('error', 'Le prix doit être supérieur à 0');
+    }
+
+    // 🔥 UPDATE SALE (prix + client)
+    if ($vehicle->sale) {
+
+        $vehicle->sale()->update([
+            'sold_price' => $price,
+            'customer_id' => $request->customer_id
+        ]);
+
+    } else {
+
+        // 🔥 sécurité si jamais pas de sale
+        \App\Models\Sale::create([
+            'vehicle_id' => $vehicle->id,
+            'customer_id' => $request->customer_id,
+            'sold_by' => auth()->id(),
+            'sold_price' => $price,
+            'payment_type' => 'Cash',
+            'sold_date' => now(),
+        ]);
+    }
+
+    return redirect()
+        ->route('vehicles.sold')
+        ->with('success', 'Prix et client modifiés avec succès.');
 }
 /* ===============================
    Import excel
