@@ -26,14 +26,28 @@
                             </button>
                         </div>
 
+
                         @if(request('search'))
-                        <div class="col-auto">
-                            <a href="{{ route('vehicles.sold') }}" class="btn btn-secondary">
-                                Réinitialiser
-                            </a>
-                        </div>
+                            <div class="col-auto">
+                                <a href="{{ route('vehicles.sold') }}" class="btn btn-secondary">
+                                    Réinitialiser
+                                </a>
+                            </div>
                         @endif
+
+                        <!-- 📥 EXPORT (ICI ✅) -->
+                        @auth
+                            @if(in_array(auth()->user()->role, ['admin','vendeur']))
+                                <div class="col-auto">
+                                    <a href="{{ route('vehicles.exportSold') }}" class="btn btn-success">
+                                        📥 Export Excel
+                                    </a>
+                                </div>
+                            @endif
+                        @endauth
+
                     </div>
+
                 </form>
                 {{-- ================= ALERTS ================= --}}
                 @if(session('success'))

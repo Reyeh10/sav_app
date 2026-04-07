@@ -105,8 +105,8 @@ Importer Excel
 <th>VIN</th>
 <th>Brand</th>
 <th>Model</th>
-<th>Color exterior</th>
 <th>Color interior</th>
+<th>Color exterior</th>
 <th>Model year</th>
 <th>Energy</th>
 <th>Configuration</th>
@@ -139,8 +139,9 @@ data-bs-target="#img{{ $vehicle->id }}">
 <td>{{ $vehicle->vin ?? '-' }}</td>
 <td>{{ $vehicle->brand ?? '-' }}</td>
 <td>{{ $vehicle->model ?? '-' }}</td>
-<td>{{ $vehicle->color_exterior ?? '-' }}</td>
 <td>{{ $vehicle->color_interior ?? '-' }}</td>
+<td>{{ $vehicle->color_exterior ?? '-' }}</td>
+<!--td>{ { $vehicle->color_interior ?? '-' }}</td-->
 <td>{{ $vehicle->model_year ?? '-' }}</td>
 
 <!-- ================= NOUVEAUX CHAMPS AJOUTÉS (SANS SUPPRIMER L’ANCIEN CODE) ================= -->

@@ -3,8 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+//use Illuminate\Http\Request;
+//use Symfony\Component\HttpFoundation\Response;
 
 class NoCacheMiddleware
 {
@@ -14,12 +14,16 @@ class NoCacheMiddleware
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
    public function handle($request, Closure $next)
-        {
-            $response = $next($request);
+    {
+        $response = $next($request);
 
-            return $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-                ->header('Pragma', 'no-cache')
-                ->header('Expires', 'Sat, 01 Jan 1990 00:00:00 GMT');
+        // 🔥 FIX (compatible Excel download + pages normales)
+        if (method_exists($response, 'header')) {
+            $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                     ->header('Pragma', 'no-cache')
+                     ->header('Expires', 'Sat, 01 Jan 1990 00:00:00 GMT');
         }
 
+        return $response;
+    }
 }

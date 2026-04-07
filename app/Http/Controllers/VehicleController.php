@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Vehicle;
 //use App\Imports\VehiclesImport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SoldVehiclesExport;
 //use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -607,70 +608,86 @@ public function importExcel(Request $request)
                 );
             }
 
-            // ===============================
-// Gestion obligatoire et sécurisée de la date
-// ===============================
+                    // ===============================
+        // Gestion obligatoire et sécurisée de la date
+        // ===============================
 
-if (empty($arrivalRaw)) {
-    DB::rollBack();
-    return back()->with(
-        'error',
-        "Erreur ligne " . ($index + 1) . " : La date d'arrivée est obligatoire."
-    );
-}
-
-try {
-
-    // Si Excel envoie une date numérique
-                if (is_numeric($arrivalRaw)) {
-                    $arrivalDate = Carbon::instance(
-                       Date::excelToDateTimeObject($arrivalRaw)
-                    );
-                } else {
-                    $arrivalDate = Carbon::parse($arrivalRaw);
-                }
-
-                    } catch (\Exception $e) {
-                        DB::rollBack();
-                        return back()->with(
-                            'error',
-                            "Erreur ligne " . ($index + 1) . " : Format de date invalide."
-                        );
-                    }
-            // ===============================
-            // Création véhicule
-            // ===============================
-            Vehicle::create([
-                'vin' => $vin,
-                'brand' => $brand,
-                'model' => $model,
-                'model_year' => $modelYear,
-                'engine' => $engine,
-                'configuration' => $configuration,
-                'engine_number' => $engineNumber,
-                'color_exterior' => $colorExterior,
-                'color_interior' => $colorInterior,
-                'arrival_date' => $arrivalDate,
-                'mileage' => $mileage,
-                'comment' => $comment,
-                'status' => $status,
-            ]);
+        if (empty($arrivalRaw)) {
+            DB::rollBack();
+            return back()->with(
+                'error',
+                "Erreur ligne " . ($index + 1) . " : La date d'arrivée est obligatoire."
+            );
         }
 
-        DB::commit();
+    try {
 
-        return back()->with('success', 'Import réussi !');
+            // Si Excel envoie une date numérique
+                    if (is_numeric($arrivalRaw)) {
+                        $arrivalDate = Carbon::instance(
+                        Date::excelToDateTimeObject($arrivalRaw)
+                        );
+                    } else {
+                        $arrivalDate = Carbon::parse($arrivalRaw);
+                    }
 
-    } catch (\Exception $e) {
+                        } catch (\Exception $e) {
+                            DB::rollBack();
+                            return back()->with(
+                                'error',
+                                "Erreur ligne " . ($index + 1) . " : Format de date invalide."
+                            );
+                        }
+                // ===============================
+                // Création véhicule
+                // ===============================
+                Vehicle::create([
+                    'vin' => $vin,
+                    'brand' => $brand,
+                    'model' => $model,
+                    'model_year' => $modelYear,
+                    'engine' => $engine,
+                    'configuration' => $configuration,
+                    'engine_number' => $engineNumber,
+                    'color_exterior' => $colorExterior,
+                    'color_interior' => $colorInterior,
+                    'arrival_date' => $arrivalDate,
+                    'mileage' => $mileage,
+                    'comment' => $comment,
+                    'status' => $status,
+                ]);
+            }
 
-        DB::rollBack();
+            DB::commit();
 
-        return back()->with(
-            'error',
-            'Erreur lors de l’import : ' . $e->getMessage()
-        );
-    }
+            return back()->with('success', 'Import réussi !');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->with(
+                'error',
+                'Erreur lors de l’import : ' . $e->getMessage()
+            );
+        }
 }
+
+/* ===============================
+   Export
+=============================== */
+
+    public function exportSold()
+    {
+        // 🔒 sécurité ROLE
+       if (!in_array(auth()->user()->role, ['admin', 'vendeur'])) {
+            abort(403, 'Accès refusé');
+        }
+
+        return Excel::download(new SoldVehiclesExport, 'vehicules_vendus.xlsx');
+
+    }
+
 /* ===============================
    DELETE (ADMIN SEULEMENT)
 =============================== */

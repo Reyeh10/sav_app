@@ -90,6 +90,14 @@ Route::middleware(['auth','nocache','role:logistique'])->group(function () {
 
 Route::middleware(['auth','nocache'])->group(function () {
 
+        /*
+    ================= Export =================
+    */
+
+    Route::get('/vehicles/export-sold', [VehicleController::class, 'exportSold'])
+        ->name('vehicles.exportSold');
+
+
     /*
     ================= VEHICLES =================
     */
@@ -130,9 +138,9 @@ Route::middleware(['auth','nocache'])->group(function () {
         ->middleware('role:admin,vendeur,mecanicien,logistique')
         ->name('vehicles.sold');
 
-    Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])
+    /*Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])
     ->middleware('role:admin,vendeur,mecanicien,logistique')
-    ->name('vehicles.show');
+    ->name('vehicles.show');*/
     /*
     ================= UPDATE PRICE (FIXED POSITION) =================
     */
@@ -156,6 +164,7 @@ Route::middleware(['auth','nocache'])->group(function () {
     Route::post('/vehicles/import', [VehicleController::class, 'importExcel'])
         ->middleware('role:admin,logistique')
         ->name('vehicles.import');
+
 
     /*
     ================= INSPECTION =================
