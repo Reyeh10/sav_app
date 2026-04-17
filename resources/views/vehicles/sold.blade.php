@@ -12,7 +12,7 @@
                 <!-- ================= SEARCH ================= -->
                 <form method="GET" action="{{ route('vehicles.sold') }}" class="mb-3">
                     <div class="row g-2 align-items-center">
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <input type="text"
                                 name="search"
                                 value="{{ request('search') }}"
@@ -34,17 +34,6 @@
                                 </a>
                             </div>
                         @endif
-
-                        <!-- 📥 EXPORT (ICI ✅) -->
-                        @auth
-                            @if(in_array(auth()->user()->role, ['admin','vendeur']))
-                                <div class="col-auto">
-                                    <a href="{{ route('vehicles.exportSold') }}" class="btn btn-success">
-                                        📥 Export Excel
-                                    </a>
-                                </div>
-                            @endif
-                        @endauth
 
                     </div>
 

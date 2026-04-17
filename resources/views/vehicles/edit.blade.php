@@ -217,6 +217,7 @@ class="form-control"
 <option value="Disponible" {{ $vehicle->status == 'Disponible' ? 'selected' : '' }}>Disponible</option>
 <option value="En réparation" {{ $vehicle->status == 'En réparation' ? 'selected' : '' }}>En réparation</option>
 <option value="En attente" {{ $vehicle->status == 'En attente' ? 'selected' : '' }}>En attente</option>
+<option value="Pièces prélevées" {{ $vehicle->status == 'Pièces prélevées' ? 'selected' : '' }}>pièce(s) prélevée(s)</option>
 <!--option value="Vendu" { { $vehicle->status == 'Vendu' ? 'selected' : '' }}>Vendu</option-->
 </select>
 </div>

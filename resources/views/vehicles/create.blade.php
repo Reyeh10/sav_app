@@ -189,20 +189,6 @@
 
 @endif
 {{-- ================= STATUS ================= --}}
-<!--div class="col-md-6 mb-3">
-    <label class="form-label">Statut *</label>
-    <select name="status"
-            class="form-control @ error('status') is-invalid @ enderror">
-        <option value="Disponible" { { old('status')=='Disponible'?'selected':'' }}>Disponible</option>
-        <option value="En réparation" { { old('status')=='En réparation'?'selected':'' }}>En réparation</option>
-        <option value="En attente" { { old('status')=='En attente'?'selected':'' }}>En attente</option>
-        <option value="Vendu" { { old('status')=='Vendu'?'selected':'' }}>Vendu</option>
-    </select>
-
-    @ error('status')
-        <div class="invalid-feedback">{ { $message }}</div>
-    @ enderror
-</div-->
 
 @if($role === 'admin')
 <div class="col-md-6 mb-3">

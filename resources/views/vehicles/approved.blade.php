@@ -8,9 +8,41 @@
 <h2 class="mb-2">Voitures disponibles à vendre</h2>
 <p class="text-muted">Liste des véhicules prêts pour la vente</p>
 <!-- ================= SEARCH ================= -->
-<form method="GET" action="{{ route('vehicles.approved') }}" class="mb-3">
+<!--form method="GET" action="{ { route('vehicles.approved') }}" class="mb-3">
     <div class="row g-2 align-items-center">
         <div class="col-12 col-md-8 col-lg-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white">
+                    <i class="ti ti-search"></i>
+                </span>
+                <input type="text"
+                       name="search"
+                       value="{ { request('search') }}"
+                       class="form-control"
+                       placeholder="Rechercher par VIN, marque, modèle...">
+            </div>
+        </div>
+
+        <div class="col-12 col-md-auto">
+            <button type="submit" class="btn btn-orange w-100">
+                Rechercher
+            </button>
+        </div>
+
+        @ if(request('search'))
+        <div class="col-12 col-md-auto">
+            <a href="{ { route('vehicles.approved') }}" class="btn btn-light w-100">
+                Effacer
+            </a>
+        </div>
+        @ endif
+    </div>
+</form-->
+<form method="GET" action="{{ route('vehicles.approved') }}" class="mb-3">
+    <div class="row g-2 align-items-center">
+
+        <!-- SEARCH -->
+        <div class="col-md-8">
             <div class="input-group">
                 <span class="input-group-text bg-white">
                     <i class="ti ti-search"></i>
@@ -23,21 +55,24 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-auto">
-            <button type="submit" class="btn btn-orange w-100">
+        <!-- BOUTONS -->
+        <div class="col-md-4 d-flex justify-content-end gap-2">
+
+            <button type="submit" class="btn btn-orange">
                 Rechercher
             </button>
+
+            @if(request('search'))
+                <a href="{{ route('vehicles.approved') }}" class="btn btn-light">
+                    Effacer
+                </a>
+            @endif
+
         </div>
 
-        @if(request('search'))
-        <div class="col-12 col-md-auto">
-            <a href="{{ route('vehicles.approved') }}" class="btn btn-light w-100">
-                Effacer
-            </a>
-        </div>
-        @endif
     </div>
 </form>
+
 <!-- ================= TABLE ================= -->
 <div class="card">
 <div class="card-body">
@@ -46,7 +81,7 @@
 <thead class="table-light">
 
 <tr>
-<th>Image</th>
+<!--th>Image</th-->
 <th>VIN</th>
 <th>Brand</th>
 <th>Model</th>
@@ -71,16 +106,16 @@
 <tr>
 
 <!-- IMAGE -->
-<td>
-@if($vehicle->image)
-    <img src="{{ asset('storage/'.$vehicle->image) }}"
+<!--td>
+@ if($vehicle->image)
+    <img src="{  asset('storage/'.$vehicle->image) }}"
          width="60"
          height="60"
          style="object-fit:cover;border-radius:8px;">
-@else
+@ else
     <span class="badge bg-light text-dark">No Image</span>
-@endif
-</td>
+@ endif
+</td-->
 
 <td>{{ $vehicle->vin }}</td>
 <td>{{ $vehicle->brand }}</td>

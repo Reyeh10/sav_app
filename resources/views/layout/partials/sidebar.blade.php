@@ -98,7 +98,7 @@
 
 
                         {{-- ================= LISTE VEHICULES ================= --}}
-                        @if(in_array(auth()->user()->role, ['admin','logistique','mecanicien']))
+                        @if(in_array(auth()->user()->role, ['admin','logistique','mecanicien','vendeur']))
                             <li>
                                 <a href="{{ route('vehicles.index') }}"
                                 class="{{ request()->routeIs('vehicles.index') ? 'active' : '' }}">

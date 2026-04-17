@@ -72,36 +72,54 @@ Importer Excel
 <div class="table-responsive">
 <!--table class="table table-striped table-bordered datatable w-100 nowrap"-->
 <!-- ================= SEARCH ================= -->
-        <form method="GET" action="{{ route('vehicles.index') }}" class="mb-3">
-            <div class="row g-2 align-items-center">
-                <div class="col-md-4">
-                    <input type="text"
-                        name="search"
-                        value="{{ request('search') }}"
-                        class="form-control"
-                        placeholder="Rechercher par VIN, marque, modèle...">
-                </div>
+<form method="GET" action="{{ route('vehicles.index') }}" class="mb-3">
 
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary">
-                        🔍 Rechercher
-                    </button>
-                </div>
+    <div class="d-flex flex-nowrap gap-2 align-items-center">
 
-                @if(request('search'))
-                <div class="col-auto">
-                    <a href="{{ route('vehicles.index') }}" class="btn btn-secondary">
-                        Réinitialiser
-                    </a>
-                </div>
-                @endif
-            </div>
-        </form>
+        <input type="text" name="vin" class="form-control"
+               placeholder="VIN" value="{{ request('vin') }}" style="width: 180px;">
+
+        <input type="text" name="brand" class="form-control"
+               placeholder="Brand" value="{{ request('brand') }}" style="width: 150px;">
+
+        <input type="text" name="model" class="form-control"
+               placeholder="Model" value="{{ request('model') }}" style="width: 150px;">
+
+        <input type="text" name="model_year" class="form-control"
+               placeholder="Year" value="{{ request('model_year') }}" style="width: 120px;">
+
+        <select name="status" class="form-control" style="width: 180px;">
+            <option value="">Status</option>
+            <option value="Disponible" {{ request('status')=='Disponible'?'selected':'' }}>Disponible</option>
+            <option value="Vendu" {{ request('status')=='Vendu'?'selected':'' }}>Vendu</option>
+            <option value="En réparation" {{ request('status')=='En réparation'?'selected':'' }}>En réparation</option>
+            <option value="En attente" {{ request('status')=='En attente'?'selected':'' }}>En attente</option>
+            <option value="Pièces prélevées" {{ request('status')=='Pièces prélevées'?'selected':'' }}>Pièces prélevées</option>
+        </select>
+
+        <!-- 🔍 -->
+        <button type="submit" class="btn btn-primary">🔍</button>
+
+        <!-- RESET -->
+        <a href="{{ route('vehicles.index') }}" class="btn btn-secondary">
+            Supprimer
+        </a>
+
+        <!-- DOWNLOAD -->
+        <a href="{{ route('vehicles.exportVehicles', request()->query()) }}"
+           class="btn btn-success">
+            📥
+        </a>
+
+    </div>
+
+</form>
+
 <table class="table table-striped table-bordered w-100 nowrap">
 <thead class="table-light">
 
 <tr>
-<th>Image</th>
+<!--th>Image</th-->
 <th>VIN</th>
 <th>Brand</th>
 <th>Model</th>
@@ -125,16 +143,16 @@ Importer Excel
 <tr>
 
 <!-- IMAGE -->
-<td>
-@if($vehicle->image)
-<img src="{{ asset('storage/'.$vehicle->image) }}"
+<!--td>
+@ if($vehicle->image)
+<img src="{ { asset('storage/'.$vehicle->image) }}"
 style="width:35px;height:35px;object-fit:cover;border-radius:8px;cursor:pointer;"
 data-bs-toggle="modal"
-data-bs-target="#img{{ $vehicle->id }}">
-@else
+data-bs-target="#img{ { $vehicle->id }}">
+@ else
 <span class="badge bg-light text-dark">No Image</span>
-@endif
-</td>
+@ endif
+</td-->
 
 <td>{{ $vehicle->vin ?? '-' }}</td>
 <td>{{ $vehicle->brand ?? '-' }}</td>
@@ -188,8 +206,8 @@ data-bs-target="#img{{ $vehicle->id }}">
         <span class="badge bg-secondary">En attente</span>
     @elseif($vehicle->status == 'Vendu')
         <span class="badge bg-danger">Vendu</span>
-    @else
-        <span class="badge bg-dark">{{ $vehicle->status }}</span>
+    @elseif($vehicle->status == 'Pièces prélevées')
+        <span class="badge bg-dark">Pièces prélevées</span>
     @endif
 </td>
 

@@ -6,6 +6,7 @@ use App\Models\Vehicle;
 //use App\Imports\VehiclesImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SoldVehiclesExport;
+use App\Exports\VehiclesExport;
 //use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,33 +25,70 @@ class VehicleController extends Controller
 =============================== */
 public function index(Request $request)
 {
-    $role = auth()->user()->role;
+    // ✅ TOUS LES UTILISATEURS → TOUS LES VEHICULES
+    $query = Vehicle::query();
 
-    // On garde ta logique vendeur
-    if ($role === 'vendeur') {
-        $query = Vehicle::where('status', 'Disponible');
-    } else {
-        $query = Vehicle::query();
+    /*
+    ===============================
+    🔍 FILTRES DYNAMIQUES
+    ===============================
+    */
+
+    if ($request->filled('vin')) {
+        $query->where('vin', 'like', '%' . trim($request->vin) . '%');
     }
 
-    /* ===============================
-       SEARCH (ajout sans supprimer logique)
-    =============================== */
-    if ($request->filled('search')) {
-        $search = $request->search;
-
-        $query->where(function ($q) use ($search) {
-            $q->where('vin', 'like', "%{$search}%")
-              ->orWhere('brand', 'like', "%{$search}%")
-              ->orWhere('model', 'like', "%{$search}%")
-              ->orWhere('color_exterior', 'like', "%{$search}%")
-              ->orWhere('color_interior', 'like', "%{$search}%")
-              ->orWhere('status', 'like', "%{$search}%");
-        });
+    if ($request->filled('brand')) {
+        $query->where('brand', 'like', '%' . trim($request->brand) . '%');
     }
 
-    // Pagination propre
+    if ($request->filled('model')) {
+        $query->where('model', 'like', '%' . trim($request->model) . '%');
+    }
+
+    if ($request->filled('model_year')) {
+        $query->where('model_year', $request->model_year);
+    }
+
+    if ($request->filled('color_interior')) {
+        $query->where('color_interior', 'like', '%' . $request->color_interior . '%');
+    }
+
+    if ($request->filled('color_exterior')) {
+        $query->where('color_exterior', 'like', '%' . $request->color_exterior . '%');
+    }
+
+    if ($request->filled('engine')) {
+        $query->where('engine', 'like', '%' . $request->engine . '%');
+    }
+
+    if ($request->filled('configuration')) {
+        $query->where('configuration', 'like', '%' . $request->configuration . '%');
+    }
+
+    if ($request->filled('engine_number')) {
+        $query->where('engine_number', 'like', '%' . $request->engine_number . '%');
+    }
+
+    if ($request->filled('arrival_date')) {
+        $query->whereDate('arrival_date', $request->arrival_date);
+    }
+
+    if ($request->filled('mileage')) {
+        $query->where('mileage', $request->mileage);
+    }
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    /*
+    ===============================
+    PAGINATION
+    ===============================
+    */
     $vehicles = $query->latest()->paginate(10);
+    $vehicles->appends(request()->query());
 
     return view('vehicles.index', compact('vehicles'));
 }
@@ -69,7 +107,7 @@ public function create()
 public function store(Request $request)
 {
         $role = auth()->user()->role;
-        $allowedStatus = ['Disponible','En réparation','En attente','Vendu'];
+        $allowedStatus = ['Disponible','En réparation','En attente','Vendu','Pièces prélevées'];
         if ($role === 'admin') {
 
         $data['status'] = in_array($request->status, $allowedStatus)
@@ -177,7 +215,7 @@ public function edit(Vehicle $vehicle)
 =============================== */
 public function update(Request $request, Vehicle $vehicle)
 {
-    $allowedStatus = ['Disponible','En réparation','En attente','Vendu'];
+    $allowedStatus = ['Disponible','En réparation','En attente','Vendu','Pièces prélevées'];
     $role = auth()->user()->role;
 
     /* ================= ADMIN ================= */
@@ -286,7 +324,7 @@ elseif ($role === 'mecanicien') {
                 ->with('error','Ce véhicule est déjà vendu. Modification impossible.');
     }
     $data = $request->validate([
-        'status' => 'required|in:Disponible,En réparation,En attente,Vendu',
+        'status' => 'required|in:Disponible,En réparation,En attente,Vendu,Pièces prélevées',
         'comment' => 'nullable|string|max:1000',
         'image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
     ]);
@@ -688,6 +726,12 @@ public function importExcel(Request $request)
 
     }
 
+
+public function exportVehicles()
+{
+
+    return Excel::download(new VehiclesExport, 'vehicles_'.date('Y-m-d').'.xlsx');
+}
 /* ===============================
    DELETE (ADMIN SEULEMENT)
 =============================== */

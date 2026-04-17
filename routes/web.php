@@ -97,6 +97,8 @@ Route::middleware(['auth','nocache'])->group(function () {
     Route::get('/vehicles/export-sold', [VehicleController::class, 'exportSold'])
         ->name('vehicles.exportSold');
 
+    Route::get('/vehicles/export-vehicles', [VehicleController::class, 'exportVehicles'])
+    ->name('vehicles.exportVehicles');
 
     /*
     ================= VEHICLES =================
@@ -249,6 +251,8 @@ Route::middleware(['auth','nocache','role:admin,vendeur'])->group(function () {
 
     Route::get('/customers/export', [CustomerController::class, 'exportExcel'])
         ->name('customers.export');
+
+
 });
 
 /*
