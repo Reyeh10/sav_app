@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Vehicle extends Model
 {
@@ -25,7 +26,14 @@ class Vehicle extends Model
     'status',
     'sold_price',
      'image',
-    'sold_at'
+    'sold_at',
+    'engine_capacity',
+    'fuel_type',
+    'doors',
+    'cylinders',
+    'tire_size',
+    'transmission',
+    'seats',
     ];
 
     /*
@@ -33,8 +41,21 @@ class Vehicle extends Model
        RELATION SALE
     ===============================
     */
-    public function sale()
+    /*public function sale()
         {
             return $this->hasOne(\App\Models\Sale::class);
+        } */
+
+   public function sale()
+    {
+        return $this->hasOne(
+            \App\Models\Sale::class,
+            'vehicle_id',
+            'id'
+        )->latestOfMany();
+    }
+    public function proformas(): HasMany
+        {
+            return $this->hasMany(Proforma::class);
         }
 }

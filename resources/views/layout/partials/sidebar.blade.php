@@ -178,8 +178,64 @@
 
                         @endif
 
+                        {{-- ============================================================
+                            GESTION DES VENTES
+                        ============================================================ --}}
 
+                        @if(in_array(auth()->user()->role, ['admin', 'vendeur']))
 
+                            <li class="sidebar-section-title">
+                                <i class="ti ti-receipt text-success"></i>
+                                Gestion des ventes
+                            </li>
+
+                            <li class="sidebar-section-divider"></li>
+
+                            {{-- Liste des factures --}}
+                            <li>
+                                <a
+                                    href="{{ route('sales.invoices') }}"
+                                    class="{{ request()->routeIs(
+                                        'sales.invoices',
+                                        'sales.invoice',
+                                        'sales.invoice.download'
+                                    ) ? 'active' : '' }}"
+                                >
+                                    <i class="ti ti-file-invoice me-2 text-success"></i>
+                                    Liste des factures
+                                </a>
+                            </li>
+
+                            {{-- Liste des proformas --}}
+                            <li>
+                                <a
+                                    href="{{ route('proformas.index') }}"
+                                    class="{{ request()->routeIs(
+                                        'proformas.index',
+                                        'proformas.show',
+                                        'proformas.download'
+                                    ) ? 'active' : '' }}"
+                                >
+                                    <i class="ti ti-file-description me-2 text-info"></i>
+                                    Liste des proformas
+                                </a>
+                            </li>
+
+                            {{-- Créer un proforma --}}
+                            <li>
+                                <a
+                                    href="{{ route('proformas.create') }}"
+                                    class="{{ request()->routeIs(
+                                        'proformas.create',
+                                        'proformas.create.vehicle'
+                                    ) ? 'active' : '' }}"
+                                >
+                                    <i class="ti ti-file-plus me-2 text-primary"></i>
+                                    Nouveau proforma
+                                </a>
+                            </li>
+
+                        @endif
                         <!-- ================================================= -->
                         <!-- 👥 GESTION DES CLIENTS -->
                         <!-- ================================================= -->

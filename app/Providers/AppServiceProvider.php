@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Validator;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Enregistrer les services de l’application.
      */
     public function register(): void
     {
@@ -16,12 +16,21 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Initialiser les services de l’application.
      */
-    public function boot()
-{
-    Validator::replacer('unique', function ($message, $attribute) {
-        return "Cet email est déjà utilisé.";
-    });
-}
+    public function boot(): void
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | Pagination Bootstrap 5
+        |--------------------------------------------------------------------------
+        |
+        | Le thème de l’application utilise Bootstrap. Sans cette instruction,
+        | Laravel génère une pagination Tailwind dont les flèches SVG peuvent
+        | apparaître en très grande taille.
+        |
+        */
+
+        Paginator::useBootstrapFive();
+    }
 }

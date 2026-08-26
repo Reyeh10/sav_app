@@ -106,90 +106,139 @@ public function create()
 =============================== */
 public function store(Request $request)
 {
-        $role = auth()->user()->role;
-        $allowedStatus = ['Disponible','En réparation','En attente','Vendu','Pièces prélevées'];
-        if ($role === 'admin') {
+    $role = auth()->user()->role;
 
-        $data['status'] = in_array($request->status, $allowedStatus)
-            ? $request->status
+    $allowedStatus = [
+        'Disponible',
+        'En réparation',
+        'En attente',
+        'Vendu',
+        'Pièces prélevées',
+    ];
+
+    $validated = $request->validate([
+        'vin' => 'required|string|max:100|unique:vehicles,vin',
+        'brand' => 'required|string|max:100',
+        'model' => 'required|string|max:100',
+        'model_year' => 'nullable|integer|min:1900|max:2100',
+
+        // Champs existants / compatibilité
+        'engine' => 'nullable|string|max:100',
+        'configuration' => 'nullable|string|max:255',
+        'engine_number' => 'nullable|string|max:100',
+
+        // Nouveaux champs techniques
+        'engine_capacity' => 'nullable|string|max:50',
+        'fuel_type' => 'nullable|string|max:50',
+        'doors' => 'nullable|integer|min:1|max:20',
+        'cylinders' => 'nullable|integer|min:1|max:20',
+        'tire_size' => 'nullable|string|max:50',
+        'transmission' => 'nullable|string|max:100',
+        'seats' => 'nullable|integer|min:1|max:100',
+
+        'mileage' => 'nullable|integer|min:0',
+        'color_exterior' => 'nullable|string|max:50',
+        'color_interior' => 'nullable|string|max:50',
+        'arrival_date' => 'required|date',
+        'comment' => 'nullable|string|max:1000',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'status' => 'nullable|string',
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATUT
+    |--------------------------------------------------------------------------
+    | Admin peut choisir un statut autorisé.
+    | Les autres profils créateurs démarrent à "En attente".
+    */
+    if ($role === 'admin') {
+        $validated['status'] = in_array(
+            $request->input('status'),
+            $allowedStatus,
+            true
+        )
+            ? $request->input('status')
             : 'En attente';
     } else {
-        // Logistique ne choisit pas
-        $data['status'] = 'En attente';
+        $validated['status'] = 'En attente';
     }
 
-        $request->validate([
-            'vin'   => 'required|unique:vehicles,vin',
-            'brand' => 'required|string|max:100',
-            'model' => 'required|string|max:100',
-            'model_year' => 'nullable|integer|min:1900|max:' . date('Y'),
-            'engine' => 'nullable|in:Essence,Diesel,HEV,PHEV,Electrique',
-            'configuration' => 'nullable|string|max:255',
-            'engine_number' => 'nullable|string|max:100',
-            'mileage' => 'nullable|integer|min:0',
-           // 'plate_number' => 'nullable|string|max:100',
-            'color_exterior' => 'nullable|string|max:50',
-            'color_interior' => 'nullable|string|max:50',
-            'arrival_date' => 'nullable|date',
-            'comment' => 'nullable|string|max:1000',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'status' => 'nullable|string'
-        ]);
+    $validated['mileage'] = $validated['mileage'] ?? 0;
+    $validated['model_year'] = $validated['model_year'] ?? null;
 
-        $data = $request->all();
-
-        $data['mileage'] = $request->mileage ?? 0;
-        $data['model_year'] = $request->model_year ?? null;
-
-        $data['status'] = in_array($request->status, $allowedStatus)
-            ? $request->status
-            : 'En attente';
-
-
-   // $data['image'] = $request->file('image')->store('vehicles', 'public');
-  /*if (in_array($role, ['admin','mecanicien']) && $request->hasFile('image')) {
-
-    $image = $request->file('image');
-
-    $imageName = time().'_'.$image->getClientOriginalName();
-
-    // déplacer dans public/storage/vehicles
-    $image->move(public_path('storage/vehicles'), $imageName);
-
-    $data['image'] = 'vehicles/'.$imageName;
-}*/
-    if (in_array($role, ['admin','mecanicien']) && $request->hasFile('image')) {
-
-    $image = $request->file('image');
-
-    $imageName = uniqid().'_'.$image->getClientOriginalName();
-
-    $destination = base_path('../storage/vehicles');
-
-    if (!file_exists($destination)) {
-        mkdir($destination, 0755, true);
-    }
-
-    $image->move($destination, $imageName);
-
-    $data['image'] = 'vehicles/'.$imageName;
-}
-
-
-
-        /*
-    ================= CONFIGURATION SECURITY =================
-    logistique et vendeur ne peuvent pas modifier
+    /*
+    |--------------------------------------------------------------------------
+    | SÉCURITÉ PAR RÔLE
+    |--------------------------------------------------------------------------
     */
-
-    if (!in_array($role, ['admin','mecanicien'])) {
-        unset($data['configuration']);
+    if (!in_array($role, ['admin', 'logistique'], true)) {
+        unset(
+            $validated['vin'],
+            $validated['brand'],
+            $validated['model'],
+            $validated['model_year'],
+            $validated['engine'],
+            $validated['configuration'],
+            $validated['engine_number'],
+            $validated['engine_capacity'],
+            $validated['fuel_type'],
+            $validated['doors'],
+            $validated['cylinders'],
+            $validated['tire_size'],
+            $validated['transmission'],
+            $validated['seats'],
+            $validated['color_exterior'],
+            $validated['color_interior'],
+            $validated['arrival_date'],
+            $validated['mileage']
+        );
     }
 
-        Vehicle::create($data);
+    if (!in_array($role, ['admin', 'mecanicien'], true)) {
+        unset($validated['comment']);
+    }
 
-        return redirect()->route('vehicles.index')
-            ->with('success','Véhicule ajouté ✅');
+    /*
+    |--------------------------------------------------------------------------
+    | IMAGE
+    |--------------------------------------------------------------------------
+    */
+    if (
+        in_array($role, ['admin', 'mecanicien'], true)
+        && $request->hasFile('image')
+    ) {
+        $image = $request->file('image');
+
+        $imageName =
+            uniqid() . '_' . $image->getClientOriginalName();
+
+        $destination =
+            base_path('../storage/vehicles');
+
+        if (!file_exists($destination)) {
+            mkdir($destination, 0755, true);
+        }
+
+        $image->move(
+            $destination,
+            $imageName
+        );
+
+        $validated['image'] =
+            'vehicles/' . $imageName;
+    } else {
+        unset($validated['image']);
+    }
+
+    Vehicle::create($validated);
+
+    return redirect()
+        ->route('vehicles.index')
+        ->with(
+            'success',
+            'Véhicule ajouté ✅'
+        );
 }
 
 /* ===============================
@@ -199,203 +248,591 @@ public function edit(Vehicle $vehicle)
 {
     $role = auth()->user()->role;
 
-    // 🚫 Vendeur ne peut pas modifier
-    if ($role === 'vendeur') {
-        return redirect()->route('vehicles.index')
-            ->with('error', 'Vous n’avez pas le droit de modifier.');
+    /*
+    |--------------------------------------------------------------------------
+    | VENDEUR
+    |--------------------------------------------------------------------------
+    |
+    | Le vendeur peut modifier uniquement un véhicule disponible.
+    | Les véhicules vendus, payés ou dans un autre statut sont verrouillés.
+    |
+    */
+    if (
+        $role === 'vendeur'
+        && $vehicle->status !== 'Disponible'
+    ) {
+        return redirect()
+            ->route('vehicles.index')
+            ->with(
+                'error',
+                'Le vendeur peut modifier uniquement les véhicules disponibles.'
+            );
     }
 
-    //return view('vehicles.edit', compact('vehicle'));
-    $vehicle->load('sale.customer'); // 🔥 IMPORTANT
+    $vehicle->load('sale.customer');
+
     $customers = \App\Models\Customer::all();
-    return view('vehicles.edit', compact('vehicle', 'customers'));
+
+    return view(
+        'vehicles.edit',
+        compact('vehicle', 'customers')
+    );
 }
 /* ===============================
    UPDATE (SÉCURISÉ PAR RÔLE)
 =============================== */
 public function update(Request $request, Vehicle $vehicle)
 {
-    $allowedStatus = ['Disponible','En réparation','En attente','Vendu','Pièces prélevées'];
     $role = auth()->user()->role;
 
-    /* ================= ADMIN ================= */
-    if ($role === 'admin') {
-        $data = $request->all();
-    /* ***************   vendu to disponible ***********  */
-        $oldStatus = $vehicle->status;
-        $newStatus = $data['status'] ?? $oldStatus;
+    $allowedStatus = [
+        'Disponible',
+        'En réparation',
+        'En attente',
+        'Vendu',
+        'Pièces prélevées',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | VENDEUR
+    |--------------------------------------------------------------------------
+    |
+    | Le vendeur peut modifier les informations générales et techniques
+    | uniquement lorsque le véhicule est disponible.
+    |
+    | Le vendeur ne peut pas modifier le statut.
+    |
+    */
+    if ($role === 'vendeur') {
+
+        if ($vehicle->status !== 'Disponible') {
+            return redirect()
+                ->route('vehicles.index')
+                ->with(
+                    'error',
+                    'Le vendeur peut modifier uniquement les véhicules disponibles.'
+                );
+        }
+
+        $data = $request->validate([
+            'vin' => 'required|string|max:100|unique:vehicles,vin,' . $vehicle->id,
+            'brand' => 'required|string|max:100',
+            'model' => 'required|string|max:100',
+            'model_year' => 'nullable|integer|min:1900|max:2100',
+
+            'engine' => 'nullable|string|max:100',
+            'configuration' => 'nullable|string|max:255',
+            'engine_number' => 'nullable|string|max:100',
+
+            'engine_capacity' => 'nullable|string|max:50',
+            'fuel_type' => 'nullable|string|max:50',
+            'doors' => 'nullable|integer|min:1|max:20',
+            'cylinders' => 'nullable|integer|min:1|max:20',
+            'tire_size' => 'nullable|string|max:50',
+            'transmission' => 'nullable|string|max:100',
+            'seats' => 'nullable|integer|min:1|max:100',
+
+            'color_exterior' => 'nullable|string|max:50',
+            'color_interior' => 'nullable|string|max:50',
+            'arrival_date' => 'required|date',
+            'mileage' => 'nullable|integer|min:0',
+            'comment' => 'nullable|string|max:1000',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
         /*
-        =================================
-        RESET PRICE SI VENDU → DISPONIBLE
-        =================================
+        |--------------------------------------------------------------------------
+        | LE VENDEUR NE CHANGE PAS LE STATUT
+        |--------------------------------------------------------------------------
         */
-        if ($oldStatus === 'Vendu' && $newStatus === 'Disponible') {
+        $data['status'] = $vehicle->status;
 
-            // Supprimer ou reset le prix dans la table sales
-            if ($vehicle->sale) {
+        /*
+        |--------------------------------------------------------------------------
+        | IMAGE
+        |--------------------------------------------------------------------------
+        */
+        if ($request->hasFile('image')) {
 
-                // OPTION 1 (RECOMMANDÉE) → reset prix
-                $vehicle->sale()->update([
-                    'sold_price' => 0
-                ]);
+            if ($vehicle->image) {
 
-                // OPTION 2 → supprimer la vente (si logique métier)
-                // $vehicle->sale()->delete();
+                $oldImagePath = base_path(
+                    '../storage/' . $vehicle->image
+                );
+
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
-        }
-     /* *************** END  vendu to disponible ***********  */
-
-        if (isset($data['status']) && !in_array($data['status'], $allowedStatus)) {
-            $data['status'] = $vehicle->status;
-        }
-
-        if ($request->hasFile('image')) {
-
-    // Supprimer ancienne image
-    if ($vehicle->image) {
-        \Illuminate\Support\Facades\Storage::disk('public')->delete($vehicle->image);
-    }
-
-        if ($request->hasFile('image')) {
 
             $image = $request->file('image');
 
-            $imageName = uniqid().'_'.$image->getClientOriginalName();
+            $imageName =
+                uniqid() . '_' .
+                $image->getClientOriginalName();
 
-            $destination = base_path('../storage/vehicles');
+            $destination =
+                base_path('../storage/vehicles');
 
             if (!file_exists($destination)) {
-                mkdir($destination, 0755, true);
+                mkdir(
+                    $destination,
+                    0755,
+                    true
+                );
             }
 
-            $image->move($destination, $imageName);
+            $image->move(
+                $destination,
+                $imageName
+            );
 
-            $data['image'] = 'vehicles/'.$imageName;
+            $data['image'] =
+                'vehicles/' . $imageName;
+
+        } else {
+            unset($data['image']);
         }
 
-
+        $vehicle->update($data);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN
+    |--------------------------------------------------------------------------
+    */
+    elseif ($role === 'admin') {
+
+        $data = $request->validate([
+            'vin' => 'required|string|max:100|unique:vehicles,vin,' . $vehicle->id,
+            'brand' => 'required|string|max:100',
+            'model' => 'required|string|max:100',
+            'model_year' => 'nullable|integer|min:1900|max:2100',
+
+            // Compatibilité avec l'ancien champ
+            'engine' => 'nullable|string|max:100',
+
+            'configuration' => 'nullable|string|max:255',
+            'engine_number' => 'nullable|string|max:100',
+
+            // Nouveaux champs techniques
+            'engine_capacity' => 'nullable|string|max:50',
+            'fuel_type' => 'nullable|string|max:50',
+            'doors' => 'nullable|integer|min:1|max:20',
+            'cylinders' => 'nullable|integer|min:1|max:20',
+            'tire_size' => 'nullable|string|max:50',
+            'transmission' => 'nullable|string|max:100',
+            'seats' => 'nullable|integer|min:1|max:100',
+
+            'color_exterior' => 'nullable|string|max:50',
+            'color_interior' => 'nullable|string|max:50',
+            'arrival_date' => 'required|date',
+            'mileage' => 'nullable|integer|min:0',
+            'comment' => 'nullable|string|max:1000',
+            'status' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'customer_id' => 'nullable|exists:customers,id',
+        ]);
+
+        $oldStatus = $vehicle->status;
+
+        $newStatus = $data['status'] ?? $oldStatus;
+
+        if (!in_array($newStatus, $allowedStatus, true)) {
+            $newStatus = $oldStatus;
+        }
+
+        $data['status'] = $newStatus;
+
+        /*
+        |--------------------------------------------------------------------------
+        | RETOUR VENDU → DISPONIBLE
+        |--------------------------------------------------------------------------
+        |
+        | Lorsqu'une voiture vendue retourne dans le stock :
+        |
+        | - le prix de l'ancienne vente est remis à 0
+        | - la date de vente est supprimée
+        | - le véhicule redevient disponible
+        |
+        | Ainsi, lors d'une nouvelle vente, une nouvelle date
+        | et un nouveau prix pourront être enregistrés.
+        |
+        */
+        if (
+            $oldStatus === 'Vendu'
+            && $newStatus === 'Disponible'
+        ) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | RÉINITIALISER L'ANCIENNE VENTE
+            |--------------------------------------------------------------------------
+            |
+            | sold_date doit être nullable dans la table sales.
+            | Une migration dédiée est fournie avec ce contrôleur.
+            |
+            */
+            if ($vehicle->sale) {
+                $vehicle->sale()->update([
+                    'sold_price' => 0,
+                    'sold_date' => null,
+                ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | RÉINITIALISER AUSSI LA DATE DE VENTE DU VÉHICULE
+            |--------------------------------------------------------------------------
+            |
+            | La colonne vehicles.sold_at est utilisée dans la liste des véhicules
+            | vendus. Elle doit donc être vidée lorsque le véhicule retourne en stock.
+            |
+            */
+            $data['sold_at'] = null;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | IMAGE
+        |--------------------------------------------------------------------------
+        */
+        if ($request->hasFile('image')) {
+
+            if ($vehicle->image) {
+                $oldImagePath =
+                    base_path(
+                        '../storage/' . $vehicle->image
+                    );
+
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            $image = $request->file('image');
+
+            $imageName =
+                uniqid() . '_' .
+                $image->getClientOriginalName();
+
+            $destination =
+                base_path('../storage/vehicles');
+
+            if (!file_exists($destination)) {
+                mkdir(
+                    $destination,
+                    0755,
+                    true
+                );
+            }
+
+            $image->move(
+                $destination,
+                $imageName
+            );
+
+            $data['image'] =
+                'vehicles/' . $imageName;
+        } else {
+            unset($data['image']);
+        }
+
+        $customerId =
+            $data['customer_id'] ?? null;
+
+        unset($data['customer_id']);
+
         $vehicle->update($data);
-        /* ================= UPDATE CLIENT (SALE) ================= */
-        if ($request->filled('customer_id') && $vehicle->sale) {
+
+        if (
+            $customerId
+            && $vehicle->sale
+        ) {
             $vehicle->sale->update([
-                'customer_id' => $request->customer_id
+                'customer_id' => $customerId,
             ]);
         }
     }
 
-    /* ================= LOGISTIQUE ================= */
+    /*
+    |--------------------------------------------------------------------------
+    | LOGISTIQUE
+    |--------------------------------------------------------------------------
+    */
     elseif ($role === 'logistique') {
-        // 🚫 Si véhicule vendu → aucune modification possible
+
         if ($vehicle->status === 'Vendu') {
-            return redirect()->route('vehicles.index')
-                ->with('error','Ce véhicule est déjà vendu. Modification impossible.');
-    }
+            return redirect()
+                ->route('vehicles.index')
+                ->with(
+                    'error',
+                    'Ce véhicule est déjà vendu. Modification impossible.'
+                );
+        }
+
         $data = $request->validate([
-            'vin' => 'required|unique:vehicles,vin,' . $vehicle->id,
-            'plate_number' => 'nullable|unique:vehicles,plate_number,' . $vehicle->id,
+            'vin' => 'required|string|max:100|unique:vehicles,vin,' . $vehicle->id,
             'brand' => 'required|string|max:100',
             'model' => 'required|string|max:100',
-            'model_year' => 'nullable|integer|min:1900|max:' . date('Y'),
-            'engine' => 'nullable|in:Essence,Diesel,HEV,PHEV,Electrique',
+            'model_year' => 'nullable|integer|min:1900|max:2100',
+
+            // Compatibilité ancien champ
+            'engine' => 'nullable|string|max:100',
+
             'configuration' => 'nullable|string|max:255',
             'engine_number' => 'nullable|string|max:100',
+
+            // Nouveaux champs techniques
+            'engine_capacity' => 'nullable|string|max:50',
+            'fuel_type' => 'nullable|string|max:50',
+            'doors' => 'nullable|integer|min:1|max:20',
+            'cylinders' => 'nullable|integer|min:1|max:20',
+            'tire_size' => 'nullable|string|max:50',
+            'transmission' => 'nullable|string|max:100',
+            'seats' => 'nullable|integer|min:1|max:100',
+
             'color_exterior' => 'nullable|string|max:50',
             'color_interior' => 'nullable|string|max:50',
-            'arrival_date' => 'nullable|date',
+            'arrival_date' => 'required|date',
             'mileage' => 'nullable|integer|min:0',
-            'comment' => 'nullable|string|max:1000',
         ]);
 
-        // 🔒 Status inchangé
-        $data['status'] = $vehicle->status;
+        // Le statut reste inchangé.
+        $data['status'] =
+            $vehicle->status;
 
         $vehicle->update($data);
     }
 
-    /* ================= MECANICIEN ================= */
-elseif ($role === 'mecanicien') {
+    /*
+    |--------------------------------------------------------------------------
+    | MÉCANICIEN
+    |--------------------------------------------------------------------------
+    */
+    elseif ($role === 'mecanicien') {
 
-    // 🚫 Si véhicule vendu → aucune modification possible
         if ($vehicle->status === 'Vendu') {
-            return redirect()->route('vehicles.index')
-                ->with('error','Ce véhicule est déjà vendu. Modification impossible.');
-    }
-    $data = $request->validate([
-        'status' => 'required|in:Disponible,En réparation,En attente,Vendu,Pièces prélevées',
-        'comment' => 'nullable|string|max:1000',
-        'image'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
-    ]);
-
-    $updateData = [
-        'status' => $data['status'],
-        'comment' => $data['comment'] ?? $vehicle->comment,
-    ];
-
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-
-        $imageName = uniqid().'_'.$image->getClientOriginalName();
-
-        $destination = base_path('../storage/vehicles');
-
-        if (!file_exists($destination)) {
-            mkdir($destination, 0755, true);
+            return redirect()
+                ->route('vehicles.index')
+                ->with(
+                    'error',
+                    'Ce véhicule est déjà vendu. Modification impossible.'
+                );
         }
 
-        $image->move($destination, $imageName);
+        $data = $request->validate([
+            'status' =>
+                'required|in:Disponible,En réparation,En attente,Vendu,Pièces prélevées',
 
-        $updateData['image'] = 'vehicles/'.$imageName;
+            'comment' =>
+                'nullable|string|max:1000',
+
+            'image' =>
+                'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $updateData = [
+            'status' => $data['status'],
+            'comment' =>
+                $data['comment']
+                ?? $vehicle->comment,
+        ];
+
+        if ($request->hasFile('image')) {
+
+            if ($vehicle->image) {
+                $oldImagePath =
+                    base_path(
+                        '../storage/' . $vehicle->image
+                    );
+
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            $image = $request->file('image');
+
+            $imageName =
+                uniqid() . '_' .
+                $image->getClientOriginalName();
+
+            $destination =
+                base_path('../storage/vehicles');
+
+            if (!file_exists($destination)) {
+                mkdir(
+                    $destination,
+                    0755,
+                    true
+                );
+            }
+
+            $image->move(
+                $destination,
+                $imageName
+            );
+
+            $updateData['image'] =
+                'vehicles/' . $imageName;
+        }
+
+        $vehicle->update($updateData);
     }
 
-    // 🔒 Mise à jour UNIQUEMENT de ces champs
-    $vehicle->update($updateData);
-}
-
-    /* ================= VENDEUR ================= */
+    /*
+    |--------------------------------------------------------------------------
+    | AUTRE RÔLE
+    |--------------------------------------------------------------------------
+    */
     else {
-        return redirect()->route('vehicles.index')
-            ->with('error','Vous n’avez pas le droit de modifier.');
+        return redirect()
+            ->route('vehicles.index')
+            ->with(
+                'error',
+                'Vous n’avez pas le droit de modifier.'
+            );
     }
 
-    return redirect()->route('vehicles.index')
-        ->with('success','Véhicule mis à jour ✅');
+    return redirect()
+        ->route('vehicles.index')
+        ->with(
+            'success',
+            'Véhicule mis à jour ✅'
+        );
 }
 
 /* ===============================
    SOLD VEHICLES + SEARCH + PAGINATION
 =============================== */
+/* ===============================
+   SOLD VEHICLES + SEARCH + PAGINATION
+=============================== */
 public function sold(Request $request)
 {
-    $query = Vehicle::where('status', 'Vendu');
+    /*
+    |--------------------------------------------------------------------------
+    | LISTE DES VÉHICULES VENDUS
+    |--------------------------------------------------------------------------
+    |
+    | Un véhicule doit rester dans cette liste même lorsque sa facture
+    | est totalement payée.
+    |
+    | Statuts considérés comme véhicules vendus :
+    |
+    | - Vendu
+    | - Payé
+    |
+    | La relation "sale" utilise latestOfMany() afin de récupérer
+    | la vente la plus récente du véhicule.
+    |
+    */
 
-    // 🔎 Recherche
+    $query = Vehicle::query()
+        ->whereIn(
+            'status',
+            [
+                'Vendu',
+                'Payé',
+            ]
+        )
+        ->with([
+            'sale' => function ($query) {
+
+                $query->with([
+                    'customer',
+                    'seller',
+                ]);
+
+            },
+        ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RECHERCHE
+    |--------------------------------------------------------------------------
+    |
+    | Recherche par :
+    |
+    | - VIN
+    | - Marque
+    | - Modèle
+    | - Année
+    |
+    */
+
     if ($request->filled('search')) {
-        $search = trim($request->search);
 
-        $query->where(function ($q) use ($search) {
-            $q->where('vin', 'like', "%{$search}%")
-              ->orWhere('brand', 'like', "%{$search}%")
-              ->orWhere('model', 'like', "%{$search}%");
-        });
+        $search = trim(
+            (string) $request->input('search')
+        );
+
+        $query->where(
+            function ($q) use ($search) {
+
+                $q->where(
+                    'vin',
+                    'like',
+                    '%' . $search . '%'
+                )
+
+                ->orWhere(
+                    'brand',
+                    'like',
+                    '%' . $search . '%'
+                )
+
+                ->orWhere(
+                    'model',
+                    'like',
+                    '%' . $search . '%'
+                )
+
+                ->orWhere(
+                    'model_year',
+                    'like',
+                    '%' . $search . '%'
+                );
+
+            }
+        );
     }
 
 
-   /* $vehicles = $query
-    ->with('sale')
-    ->orderBy('sold_at', 'desc')
-    ->paginate(10);*/
+    /*
+    |--------------------------------------------------------------------------
+    | TRI
+    |--------------------------------------------------------------------------
+    |
+    | Les véhicules les plus récemment vendus apparaissent en premier.
+    |
+    | sold_at est normalement enregistré lors de la vente.
+    | Si deux véhicules ont la même date, on utilise l'ID.
+    |
+    */
 
     $vehicles = $query
-    ->with('sale.customer') // ✅ IMPORTANT
-    ->orderBy('sold_at', 'desc')
-    ->paginate(10);
+        ->orderByDesc('sold_at')
+        ->orderByDesc('id')
+        ->paginate(10)
+        ->withQueryString();
 
-    return view('vehicles.sold', compact('vehicles'));
+
+    /*
+    |--------------------------------------------------------------------------
+    | AFFICHAGE
+    |--------------------------------------------------------------------------
+    */
+
+    return view(
+        'vehicles.sold',
+        compact('vehicles')
+    );
 }
-
 /* ===============================
    VOITURES APPROUVÉES (DISPONIBLES)
 =============================== */
@@ -482,8 +919,14 @@ public function grid(Request $request)
         'Disponible' => Vehicle::where('status', 'Disponible')->count(),
         'En attente' => Vehicle::where('status', 'En attente')->count(),
         'En réparation' => Vehicle::where('status', 'En réparation')->count(),
-        'Vendu' => Vehicle::where('status', 'Vendu')->count(),
-    ];
+        'Vendu' => Vehicle::whereIn(
+            'status',
+            [
+                'Vendu',
+                'Payé',
+            ]
+        )->count(),
+            ];
 
     return view('vehicles.grid', compact('vehicles', 'counts'));
 }
@@ -616,6 +1059,24 @@ public function importExcel(Request $request)
             $status        = $row[12] ?? 'En attente';
 
             // ===============================
+            // Champs vente présents dans le nouveau fichier
+            // ===============================
+            $soldPrice     = $row[13] ?? null;
+            $image         = trim((string)($row[14] ?? ''));
+            $soldAtRaw     = $row[15] ?? null;
+
+            // ===============================
+            // Nouveaux champs techniques
+            // ===============================
+            $engineCapacity = trim((string)($row[16] ?? ''));
+            $fuelType       = trim((string)($row[17] ?? ''));
+            $doors          = is_numeric($row[18] ?? null) ? (int)$row[18] : null;
+            $cylinders      = is_numeric($row[19] ?? null) ? (int)$row[19] : null;
+            $tireSize       = trim((string)($row[20] ?? ''));
+            $transmission   = trim((string)($row[21] ?? ''));
+            $seats          = is_numeric($row[22] ?? null) ? (int)$row[22] : null;
+
+            // ===============================
             // CHAMPS OBLIGATOIRES
             // ===============================
             if (
@@ -646,69 +1107,126 @@ public function importExcel(Request $request)
                 );
             }
 
-                    // ===============================
-        // Gestion obligatoire et sécurisée de la date
-        // ===============================
-
-        if (empty($arrivalRaw)) {
-            DB::rollBack();
-            return back()->with(
-                'error',
-                "Erreur ligne " . ($index + 1) . " : La date d'arrivée est obligatoire."
-            );
-        }
-
-    try {
-
-            // Si Excel envoie une date numérique
-                    if (is_numeric($arrivalRaw)) {
-                        $arrivalDate = Carbon::instance(
-                        Date::excelToDateTimeObject($arrivalRaw)
-                        );
-                    } else {
-                        $arrivalDate = Carbon::parse($arrivalRaw);
-                    }
-
-                        } catch (\Exception $e) {
-                            DB::rollBack();
-                            return back()->with(
-                                'error',
-                                "Erreur ligne " . ($index + 1) . " : Format de date invalide."
-                            );
-                        }
-                // ===============================
-                // Création véhicule
-                // ===============================
-                Vehicle::create([
-                    'vin' => $vin,
-                    'brand' => $brand,
-                    'model' => $model,
-                    'model_year' => $modelYear,
-                    'engine' => $engine,
-                    'configuration' => $configuration,
-                    'engine_number' => $engineNumber,
-                    'color_exterior' => $colorExterior,
-                    'color_interior' => $colorInterior,
-                    'arrival_date' => $arrivalDate,
-                    'mileage' => $mileage,
-                    'comment' => $comment,
-                    'status' => $status,
-                ]);
+            // ===============================
+            // Gestion obligatoire et sécurisée de la date
+            // ===============================
+            if (empty($arrivalRaw)) {
+                DB::rollBack();
+                return back()->with(
+                    'error',
+                    "Erreur ligne " . ($index + 1) . " : La date d'arrivée est obligatoire."
+                );
             }
 
-            DB::commit();
+            try {
 
-            return back()->with('success', 'Import réussi !');
+                // Si Excel envoie une date numérique
+                if (is_numeric($arrivalRaw)) {
+                    $arrivalDate = Carbon::instance(
+                        Date::excelToDateTimeObject($arrivalRaw)
+                    );
+                } else {
+                    $arrivalDate = Carbon::parse($arrivalRaw);
+                }
 
-        } catch (\Exception $e) {
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return back()->with(
+                    'error',
+                    "Erreur ligne " . ($index + 1) . " : Format de date invalide."
+                );
+            }
 
-            DB::rollBack();
+            // ===============================
+            // Gestion de la date de vente
+            // ===============================
+            $soldAt = null;
 
-            return back()->with(
-                'error',
-                'Erreur lors de l’import : ' . $e->getMessage()
-            );
+            if (!empty($soldAtRaw)) {
+                try {
+                    if (is_numeric($soldAtRaw)) {
+                        $soldAt = Carbon::instance(
+                            Date::excelToDateTimeObject($soldAtRaw)
+                        );
+                    } else {
+                        $soldAt = Carbon::parse($soldAtRaw);
+                    }
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return back()->with(
+                        'error',
+                        "Erreur ligne " . ($index + 1) . " : Format de date de vente invalide."
+                    );
+                }
+            }
+
+            // ===============================
+            // Nettoyage du prix de vente
+            // ===============================
+            if ($soldPrice !== null && $soldPrice !== '') {
+                $soldPrice = str_replace(' ', '', (string)$soldPrice);
+                $soldPrice = str_replace(',', '.', $soldPrice);
+
+                if (!is_numeric($soldPrice)) {
+                    DB::rollBack();
+                    return back()->with(
+                        'error',
+                        "Erreur ligne " . ($index + 1) . " : Prix de vente invalide."
+                    );
+                }
+
+                $soldPrice = (float)$soldPrice;
+            } else {
+                $soldPrice = null;
+            }
+
+            // ===============================
+            // Création véhicule
+            // ===============================
+            Vehicle::create([
+                'vin' => $vin,
+                'brand' => $brand,
+                'model' => $model,
+                'model_year' => $modelYear,
+                'engine' => $engine,
+                'configuration' => $configuration,
+                'engine_number' => $engineNumber,
+                'color_exterior' => $colorExterior,
+                'color_interior' => $colorInterior,
+                'arrival_date' => $arrivalDate,
+                'mileage' => $mileage,
+                'comment' => $comment,
+                'status' => $status,
+
+                // Champs vente
+                'sold_price' => $soldPrice,
+                'image' => $image !== '' ? $image : null,
+                'sold_at' => $soldAt,
+
+                // Nouveaux champs techniques
+                'engine_capacity' => $engineCapacity !== '' ? $engineCapacity : null,
+                'fuel_type' => $fuelType !== '' ? $fuelType : null,
+                'doors' => $doors,
+                'cylinders' => $cylinders,
+                'tire_size' => $tireSize !== '' ? $tireSize : null,
+                'transmission' => $transmission !== '' ? $transmission : null,
+                'seats' => $seats,
+            ]);
         }
+
+        DB::commit();
+
+        return back()->with('success', 'Import réussi !');
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        return back()->with(
+            'error',
+            'Erreur lors de l’import : ' . $e->getMessage()
+        );
+    }
 }
 
 /* ===============================
